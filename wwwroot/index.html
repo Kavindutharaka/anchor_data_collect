@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="sup/animate.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="app.js?t=260220003"></script>
+    <script type="text/javascript" src="app.js?t=260220004"></script>
 </head>
 <body ng-app="PHVApp" ng-cloak ng-controller="HomeCtrl">
 
@@ -52,7 +52,11 @@
         <!-- Shop Name Board Picture -->
         <div class="field-group">
             <label class="field-label">Shop Name Board Picture</label>
-            <input type="file" class="field-input" accept="image/*" id="fileBoard" onchange="angular.element(this).scope().SelectFileBoard(event)">
+            <div class="field-dual-btn">
+                <button type="button" class="btn-upload" onclick="document.getElementById('fileBoard').click()">Upload Image</button>
+                <button type="button" class="btn-cam" ng-click="openCameraFor('board')">Use Camera</button>
+            </div>
+            <input type="file" accept="image/*" id="fileBoard" style="display:none;" onchange="angular.element(this).scope().SelectFileBoard(event)">
         </div>
         <div ng-show="boardPreview" class="img-preview">
             <img ng-src="{{boardPreview}}" />
@@ -67,7 +71,11 @@
         <!-- Rack Before Picture -->
         <div class="field-group">
             <label class="field-label">Shop Product Rack Before Picture</label>
-            <input type="file" class="field-input" accept="image/*" id="fileRackBefore" onchange="angular.element(this).scope().SelectFileRackBefore(event)">
+            <div class="field-dual-btn">
+                <button type="button" class="btn-upload" onclick="document.getElementById('fileRackBefore').click()">Upload Image</button>
+                <button type="button" class="btn-cam" ng-click="openCameraFor('rackBefore')">Use Camera</button>
+            </div>
+            <input type="file" accept="image/*" id="fileRackBefore" style="display:none;" onchange="angular.element(this).scope().SelectFileRackBefore(event)">
         </div>
         <div ng-show="rackBeforePreview" class="img-preview">
             <img ng-src="{{rackBeforePreview}}" />
@@ -76,7 +84,11 @@
         <!-- Rack After Picture -->
         <div class="field-group">
             <label class="field-label">Shop Product Rack After Picture</label>
-            <input type="file" class="field-input" accept="image/*" id="fileRackAfter" onchange="angular.element(this).scope().SelectFileRackAfter(event)">
+            <div class="field-dual-btn">
+                <button type="button" class="btn-upload" onclick="document.getElementById('fileRackAfter').click()">Upload Image</button>
+                <button type="button" class="btn-cam" ng-click="openCameraFor('rackAfter')">Use Camera</button>
+            </div>
+            <input type="file" accept="image/*" id="fileRackAfter" style="display:none;" onchange="angular.element(this).scope().SelectFileRackAfter(event)">
         </div>
         <div ng-show="rackAfterPreview" class="img-preview">
             <img ng-src="{{rackAfterPreview}}" />
@@ -85,28 +97,32 @@
         <!-- Owner Signature -->
         <div class="field-group">
             <label class="field-label">Shop Owner Signature Picture</label>
-            <input type="file" class="field-input" accept="image/*" id="fileSignature" onchange="angular.element(this).scope().SelectFileSignature(event)">
+            <div class="field-dual-btn">
+                <button type="button" class="btn-upload" onclick="document.getElementById('fileSignature').click()">Upload Image</button>
+                <button type="button" class="btn-cam" ng-click="openCameraFor('signature')">Use Camera</button>
+            </div>
+            <input type="file" accept="image/*" id="fileSignature" style="display:none;" onchange="angular.element(this).scope().SelectFileSignature(event)">
         </div>
         <div ng-show="signaturePreview" class="img-preview">
             <img ng-src="{{signaturePreview}}" />
         </div>
 
-        <!-- Selfie with Shop -->
+        <!-- Selfie with Shop (Camera Only) -->
         <div class="field-group">
             <label class="field-label">Selfie with Shop</label>
-            <button type="button" class="btn-camera" ng-click="openCamera()">Open Camera & Capture</button>
+            <button type="button" class="btn-camera" ng-click="openCameraFor('selfie')">Open Camera & Capture</button>
         </div>
         <div ng-show="selfiePreview" class="img-preview">
             <img ng-src="{{selfiePreview}}" />
             <div class="timestamp-text">{{selfieTimestamp}}</div>
         </div>
 
-        <!-- Camera Modal -->
+        <!-- Reusable Camera Modal -->
         <div class="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Capture Selfie</h5>
+                        <h5 class="modal-title">{{cameraTitle}}</h5>
                         <button type="button" class="close" ng-click="closeCamera()" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true" style="color:#fff;">&times;</span>
                         </button>
@@ -116,7 +132,7 @@
                         <canvas id="cameraCanvas" style="display:none;"></canvas>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-block" ng-click="captureSelfie()" style="padding:12px;font-size:16px;">Capture</button>
+                        <button type="button" class="btn btn-primary btn-block" ng-click="capturePhoto()" style="padding:12px;font-size:16px;">Capture</button>
                         <button type="button" class="btn btn-secondary btn-block" ng-click="closeCamera()" data-dismiss="modal" style="padding:12px;">Cancel</button>
                     </div>
                 </div>

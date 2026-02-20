@@ -140,7 +140,42 @@ body {
     margin-top: 4px;
 }
 
-/* ============ CAMERA BUTTON ============ */
+/* ============ DUAL UPLOAD / CAMERA BUTTONS ============ */
+.field-dual-btn {
+    display: flex;
+    gap: 0;
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-top: none;
+}
+.field-dual-btn .btn-upload,
+.field-dual-btn .btn-cam {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    color: #fff;
+    -webkit-appearance: none;
+}
+.field-dual-btn .btn-upload {
+    background: var(--accent-green);
+}
+.field-dual-btn .btn-upload:active {
+    background: #059669;
+}
+.field-dual-btn .btn-cam {
+    background: var(--accent);
+    border-left: 1px solid rgba(255,255,255,0.15);
+}
+.field-dual-btn .btn-cam:active {
+    background: var(--accent-hover);
+}
+
+/* ============ CAMERA BUTTON (selfie only) ============ */
 .btn-camera {
     display: block;
     width: 100%;
@@ -157,6 +192,86 @@ body {
 }
 .btn-camera:active {
     background: var(--accent-hover);
+}
+
+/* ============ DATE FILTER (DB page) ============ */
+.date-filter {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 14px;
+}
+.date-filter-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-label);
+    margin-bottom: 10px;
+}
+.date-filter-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.date-filter-field {
+    flex: 1;
+    min-width: 120px;
+}
+.date-filter-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+.date-filter-field input[type="date"] {
+    width: 100%;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+}
+.date-filter-field input[type="date"]:focus {
+    border-color: var(--accent);
+}
+.date-filter-btns {
+    display: flex;
+    gap: 6px;
+}
+.date-filter-btns .btn-filter {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-appearance: none;
+}
+.date-filter-btns .btn-filter:active {
+    background: var(--accent-hover);
+}
+.date-filter-btns .btn-filter-clear {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-appearance: none;
+}
+.date-filter-btns .btn-filter-clear:active {
+    background: var(--bg-label);
 }
 
 /* ============ ACTION BUTTONS ============ */

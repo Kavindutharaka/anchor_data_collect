@@ -46,6 +46,25 @@
             </div>
         </div>
 
+        <!-- ============ DATE FILTER ============ -->
+        <div class="date-filter">
+            <div class="date-filter-title">Filter by Date</div>
+            <div class="date-filter-row">
+                <div class="date-filter-field">
+                    <label>From</label>
+                    <input type="date" ng-model="filter_from" />
+                </div>
+                <div class="date-filter-field">
+                    <label>To</label>
+                    <input type="date" ng-model="filter_to" />
+                </div>
+                <div class="date-filter-btns">
+                    <button type="button" class="btn-filter" ng-click="filterByDate()">Filter</button>
+                    <button type="button" class="btn-filter-clear" ng-click="clearFilter()">All</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ============ DESKTOP TABLE VIEW ============ -->
         <table class="table desktop-table">
             <thead>

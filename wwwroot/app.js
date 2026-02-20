@@ -5,6 +5,9 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
     var lat = "";
     var lng = "";
     var cameraStream = null;
+    var currentCameraField = ""; // tracks which field the camera is open for
+
+    $scope.cameraTitle = "Capture Photo";
 
     $scope.loadgps = function () {
 
@@ -137,10 +140,11 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
         }
     };
 
-    // --- File Select Handlers ---
+    // --- File Select Handlers (from Upload button) ---
 
     $scope.SelectFileBoard = function (e) {
         var file = e.target.files[0];
+        if (!file) return;
         $scope.selFileBoard = file;
         var nameParts = file.name.split(".");
         $scope.fileExBoard = nameParts[nameParts.length - 1];
@@ -154,6 +158,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
 
     $scope.SelectFileRackBefore = function (e) {
         var file = e.target.files[0];
+        if (!file) return;
         $scope.selFileRackBefore = file;
         var nameParts = file.name.split(".");
         $scope.fileExRackBefore = nameParts[nameParts.length - 1];
@@ -167,6 +172,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
 
     $scope.SelectFileRackAfter = function (e) {
         var file = e.target.files[0];
+        if (!file) return;
         $scope.selFileRackAfter = file;
         var nameParts = file.name.split(".");
         $scope.fileExRackAfter = nameParts[nameParts.length - 1];
@@ -180,6 +186,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
 
     $scope.SelectFileSignature = function (e) {
         var file = e.target.files[0];
+        if (!file) return;
         $scope.selFileSignature = file;
         var nameParts = file.name.split(".");
         $scope.fileExSignature = nameParts[nameParts.length - 1];
@@ -191,11 +198,25 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
         reader.readAsDataURL(file);
     };
 
-    // --- Camera Selfie with Timestamp ---
+    // --- Reusable Camera ---
 
-    $scope.openCamera = function () {
+    var cameraTitles = {
+        'board': 'Capture Shop Name Board',
+        'rackBefore': 'Capture Rack Before',
+        'rackAfter': 'Capture Rack After',
+        'signature': 'Capture Owner Signature',
+        'selfie': 'Capture Selfie with Shop'
+    };
+
+    $scope.openCameraFor = function (fieldName) {
+        currentCameraField = fieldName;
+        $scope.cameraTitle = cameraTitles[fieldName] || 'Capture Photo';
+
+        // selfie = front camera, everything else = back camera
+        var facingMode = (fieldName === 'selfie') ? "user" : { ideal: "environment" };
+
         $('#cameraModal').modal('show');
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: false })
             .then(function (stream) {
                 cameraStream = stream;
                 var video = document.getElementById('cameraVideo');
@@ -208,7 +229,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
             });
     };
 
-    $scope.captureSelfie = function () {
+    $scope.capturePhoto = function () {
         var video = document.getElementById('cameraVideo');
         var canvas = document.getElementById('cameraCanvas');
         canvas.width = video.videoWidth;
@@ -218,34 +239,57 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
         // Draw the video frame
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Add timestamp overlay
+        // Add timestamp + GPS overlay for selfie only
         var now = new Date();
         var timestamp = $filter('date')(now, 'yyyy/MM/dd HH:mm:ss');
-        var fontSize = Math.max(16, Math.floor(canvas.width / 25));
-        ctx.font = "bold " + fontSize + "px Arial";
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        var textWidth = ctx.measureText(timestamp).width;
-        ctx.fillRect(canvas.width - textWidth - 20, canvas.height - fontSize - 20, textWidth + 15, fontSize + 15);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(timestamp, canvas.width - textWidth - 12, canvas.height - 18);
 
-        // Add GPS overlay if available
-        if (lat && lng) {
-            var gpsText = "GPS: " + Number(lat).toFixed(6) + ", " + Number(lng).toFixed(6);
-            var gpsFontSize = Math.max(12, Math.floor(canvas.width / 35));
-            ctx.font = "bold " + gpsFontSize + "px Arial";
-            var gpsTextWidth = ctx.measureText(gpsText).width;
+        if (currentCameraField === 'selfie') {
+            var fontSize = Math.max(16, Math.floor(canvas.width / 25));
+            ctx.font = "bold " + fontSize + "px Arial";
             ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-            ctx.fillRect(canvas.width - gpsTextWidth - 20, canvas.height - fontSize - gpsFontSize - 35, gpsTextWidth + 15, gpsFontSize + 15);
+            var textWidth = ctx.measureText(timestamp).width;
+            ctx.fillRect(canvas.width - textWidth - 20, canvas.height - fontSize - 20, textWidth + 15, fontSize + 15);
             ctx.fillStyle = "#FFFFFF";
-            ctx.fillText(gpsText, canvas.width - gpsTextWidth - 12, canvas.height - fontSize - 28);
+            ctx.fillText(timestamp, canvas.width - textWidth - 12, canvas.height - 18);
+
+            if (lat && lng) {
+                var gpsText = "GPS: " + Number(lat).toFixed(6) + ", " + Number(lng).toFixed(6);
+                var gpsFontSize = Math.max(12, Math.floor(canvas.width / 35));
+                ctx.font = "bold " + gpsFontSize + "px Arial";
+                var gpsTextWidth = ctx.measureText(gpsText).width;
+                ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                ctx.fillRect(canvas.width - gpsTextWidth - 20, canvas.height - fontSize - gpsFontSize - 35, gpsTextWidth + 15, gpsFontSize + 15);
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillText(gpsText, canvas.width - gpsTextWidth - 12, canvas.height - fontSize - 28);
+            }
         }
 
-        // Convert canvas to blob
+        // Convert canvas to blob and assign to the correct field
+        var field = currentCameraField;
         canvas.toBlob(function (blob) {
-            $scope.selFileSelfie = blob;
-            $scope.selfiePreview = canvas.toDataURL('image/jpeg', 0.85);
-            $scope.selfieTimestamp = timestamp;
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            if (field === 'board') {
+                $scope.selFileBoard = blob;
+                $scope.fileExBoard = 'jpg';
+                $scope.boardPreview = dataUrl;
+            } else if (field === 'rackBefore') {
+                $scope.selFileRackBefore = blob;
+                $scope.fileExRackBefore = 'jpg';
+                $scope.rackBeforePreview = dataUrl;
+            } else if (field === 'rackAfter') {
+                $scope.selFileRackAfter = blob;
+                $scope.fileExRackAfter = 'jpg';
+                $scope.rackAfterPreview = dataUrl;
+            } else if (field === 'signature') {
+                $scope.selFileSignature = blob;
+                $scope.fileExSignature = 'jpg';
+                $scope.signaturePreview = dataUrl;
+            } else if (field === 'selfie') {
+                $scope.selFileSelfie = blob;
+                $scope.selfiePreview = dataUrl;
+                $scope.selfieTimestamp = timestamp;
+            }
             $scope.$apply();
         }, 'image/jpeg', 0.85);
 
@@ -266,6 +310,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
         if (video) {
             video.srcObject = null;
         }
+        currentCameraField = "";
     };
 
 });
