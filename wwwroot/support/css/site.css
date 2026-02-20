@@ -1,0 +1,336 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x- ng-cloak {
+    display: none !important;
+}
+ 
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+.phveor {
+    position: fixed;
+    z-index: 999999;
+    background-color: orange;
+    margin: 0 0 6px;
+    padding: 15px 15px 15px 15px;
+    margin-top: 31%;
+    -moz-border-radius: 3px 3px 3px 3px;
+    -webkit-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+    background-position: 5px center;
+    background-repeat: no-repeat;
+    -moz-box-shadow: 0 0 12px #999999;
+    -webkit-box-shadow: 0 0 12px #999999;
+    box-shadow: 0 0 12px #999999;
+    color: #ffffff;
+    opacity: 0.8;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+    filter: alpha(opacity=90);
+}
+
+    .phveor:hover {
+        -moz-box-shadow: 0 0 12px #000000;
+        -webkit-box-shadow: 0 0 12px #000000;
+        box-shadow: 0 0 12px #000000;
+        opacity: 1;
+        -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+        filter: alpha(opacity=100);
+        cursor: pointer;
+    }
+
+.phveorp {
+    background-color: red;
+}
+
+.phveorpb {
+    background-color: blue;
+}
+
+.phveorpok {
+    background-color: green !important;
+}
+
+.container {
+  /*  margin-top: 100px;
+    border: 1px solid blue;
+    border-right: 1px solid blue;*/
+}
+
+.expandcollapse-item {
+    overflow: hidden;
+    border-top: 1px solid blue;
+}
+
+.expandcollapse-heading-collapsed {
+    cursor: pointer;
+    padding: 15px 20px;
+    position: relative;
+    z-index: 100000000;
+    color: black;
+    background-color: white;
+}
+
+.expandcollapse-item:first-of-type {
+    border-top: 0px;
+}
+
+
+.expandcollapse-heading-collapsed p {
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0px;
+}
+
+
+
+.expandcollapse-heading-expanded {
+    cursor: pointer;
+    z-index: 100000000;
+    padding: 15px 20px;
+    position: relative;
+    color: white;
+    background-color: black;
+    border: 1px solid blue;
+}
+
+    .expandcollapse-heading-expanded p {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0px;
+    }
+
+    .expandcollapse-heading-collapsed > span,
+    .expandcollapse-heading-expanded > span {
+        position: absolute;
+        top: 25px;
+        right: 15px;
+        font-size: 20px;
+        line-height: 0px;
+    }
+
+.expand-collapse-content {
+    padding: 20px;
+}
+
+
+/*
+animation:*/
+
+.slideDown.ng-hide {
+    height: 0;
+    transition: height 0.35s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.slideDown {
+    height: auto;
+    transition: height 0.35s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+    .slideDown.ng-hide-remove,
+    .slideDown.ng-hide-add {
+        /* remember, the .hg-hide class is added to element
+  when the active class is added causing it to appear
+  as hidden. Therefore set the styling to display=block
+  so that the hide animation is visible */
+        display: block !important;
+    }
+
+
+    .slideDown.ng-hide-add {
+        animation-name: hide;
+        -webkit-animation-name: hide;
+        animation-duration: .5s;
+        -webkit-animation-duration: .5s;
+        animation-timing-function: ease-in;
+        -webkit-animation-timing-function: ease-in;
+    }
+
+
+
+    .slideDown.ng-hide-remove {
+        animation-name: show;
+        -webkit-animation-name: show;
+        animation-duration: .5s;
+        -webkit-animation-duration: .5s;
+        animation-timing-function: ease-out;
+        -webkit-animation-timing-function: ease-out;
+    }
+
+
+
+.topPanelTest {
+    margin-top: 0%;
+    margin-left: 10%;
+    background-color: white;
+    border: solid 1px;
+    position: fixed;
+    z-index: 999999;
+    width: 60%;
+    height: 65%;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.posMultyItems {
+    margin-top: 5%;
+    margin-left: 10%;
+    background-color: white;
+    border: solid 1px;
+    position: fixed;
+    z-index: 999999;
+    width: 40%;
+   padding:10px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+
+.posTop {
+    font-size: 0.7em;
+    display: inline-block;
+    margin: 2px;
+    border: solid 1px #4800ff;
+    width: 18%;
+    text-align: center;
+    vertical-align: top;
+    border-radius: 5px;
+    box-shadow: #0cba25 3px 3px;
+    cursor: pointer;
+    height: 55px !important;
+    /*display: flex;*/
+    /*flex: 1;*/
+    vertical-align:central;
+}
+
+    .posTop:hover {
+        background-color: greenyellow;
+        box-shadow: #ff0000 3px 3px;
+        font-weight: bold;
+    }
+.LastBillBtn {
+    border: solid 1px;
+    position: fixed;
+    z-index: 999999;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    margin-left: 90%;
+    width: 5%;
+    text-align: center;
+    border-radius: 5px;
+    background-color: #f3dd2f;
+    color: #0b0c02;
+    font-weight: bolder;
+    cursor: pointer;
+    height: 20px;
+}
+
+    .LastBillBtn:hover {
+        background-color: aqua;
+        box-shadow: 0 8px 16px 0 #f3dd2f,0 6px 20px 0 rgba(0,0,0,0.19);
+        font-weight: 100;
+        /*height:300px;*/
+    }
+ 
+#mySidenav a {
+    position: absolute;
+    left: -90px;
+    transition: 0.3s;
+    padding: 15px;
+    width: 110px;
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    border-radius: 0 5px 5px 0;
+}
+
+#mySidenav a:hover {
+    left: 0;
+}
+
+#about {
+    top: 20px;
+    background-color: #04AA6D;
+}
+
+#blog {
+    top: 80px;
+    background-color: #2196F3;
+}
+
+#projects {
+    top: 140px;
+    background-color: #f44336;
+}
+
+#contact {
+    top: 200px;
+    background-color: #555
+}
+

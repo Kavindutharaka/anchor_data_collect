@@ -1,0 +1,133 @@
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <meta name="keywords" content="Prasanthahv " />
+    <meta name="description" content="Prasanthahv, phv " />
+
+    <title>TB</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="sup/animate.css" />
+
+
+    <script type="text/javascript" src="sup/angular.min.js"></script>
+    <script type="text/javascript" src="app.js?t=260220001"></script>
+    <style>
+    </style>
+</head>
+<body ng-app="PHVApp" ng-cloak ng-controller="HomeCtrl">
+
+    <div class="container">
+        <div style="width:99%;padding:10px;text-align:center;margin-top:10px;">
+            <h1>Welcome</h1>
+
+        </div>
+        <img src="loading.gif" style="position:absolute;z-index:9999999;margin-left:20%;margin-top:10%;width:300px;" ng-show="data_saveing == 1" />
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:20%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Shop Name</span>
+            </div>
+            <input type="text" class="form-control" ng-model="shop_name" ng-change="loadgps()" placeholder="Shop Name">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:20%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Owner Contact</span>
+            </div>
+            <input type="text" class="form-control" ng-model="owner_contact" placeholder="Shop Owner Contact">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:20%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Shop Address</span>
+            </div>
+            <input type="text" class="form-control" ng-model="shop_address" placeholder="Shop Address">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:30%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Shop Name Board Picture</span>
+            </div>
+            <input class="form-control" placeholder="Shop Name Board Picture" type="file" accept="image/*" id="fileBoard" onchange="angular.element(this).scope().SelectFileBoard(event)">
+        </div>
+        <div ng-show="boardPreview" style="text-align:center;margin-bottom:10px;">
+            <img ng-src="{{boardPreview}}" style="max-width:200px;max-height:150px;border:2px solid #fff;border-radius:5px;" />
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:20%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Live Location</span>
+            </div>
+            <input type="text" class="form-control" ng-model="live_location" placeholder="Fetching GPS..." readonly>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:30%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Rack Before Picture</span>
+            </div>
+            <input class="form-control" placeholder="Shop Product Rack Before" type="file" accept="image/*" id="fileRackBefore" onchange="angular.element(this).scope().SelectFileRackBefore(event)">
+        </div>
+        <div ng-show="rackBeforePreview" style="text-align:center;margin-bottom:10px;">
+            <img ng-src="{{rackBeforePreview}}" style="max-width:200px;max-height:150px;border:2px solid #fff;border-radius:5px;" />
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:30%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Rack After Picture</span>
+            </div>
+            <input class="form-control" placeholder="Shop Product Rack After" type="file" accept="image/*" id="fileRackAfter" onchange="angular.element(this).scope().SelectFileRackAfter(event)">
+        </div>
+        <div ng-show="rackAfterPreview" style="text-align:center;margin-bottom:10px;">
+            <img ng-src="{{rackAfterPreview}}" style="max-width:200px;max-height:150px;border:2px solid #fff;border-radius:5px;" />
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:30%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Owner Signature</span>
+            </div>
+            <input class="form-control" placeholder="Shop Owner Signature" type="file" accept="image/*" id="fileSignature" onchange="angular.element(this).scope().SelectFileSignature(event)">
+        </div>
+        <div ng-show="signaturePreview" style="text-align:center;margin-bottom:10px;">
+            <img ng-src="{{signaturePreview}}" style="max-width:200px;max-height:150px;border:2px solid #fff;border-radius:5px;" />
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend" style="width:30%;">
+                <span class="input-group-text" id="basic-addon1" style="width:100%;">Selfie with Shop</span>
+            </div>
+            <button type="button" class="btn btn-info form-control" ng-click="openCamera()">Open Camera & Capture</button>
+        </div>
+        <div ng-show="selfiePreview" style="text-align:center;margin-bottom:10px;">
+            <img ng-src="{{selfiePreview}}" style="max-width:200px;max-height:150px;border:2px solid #fff;border-radius:5px;" />
+            <div style="color:#fff;font-size:12px;">{{selfieTimestamp}}</div>
+        </div>
+
+        <!-- Camera Modal -->
+        <div class="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Capture Selfie with Shop</h5>
+                        <button type="button" class="close" ng-click="closeCamera()" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="text-align:center;">
+                        <video id="cameraVideo" autoplay playsinline style="width:100%;max-height:400px;border-radius:5px;"></video>
+                        <canvas id="cameraCanvas" style="display:none;"></canvas>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="captureSelfie()">Capture</button>
+                        <button type="button" class="btn btn-secondary" ng-click="closeCamera()" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="width:100%;text-align:center;">
+            <button type="button" class="btn btn-primary" ng-click="save()">Save</button>
+            <button type="button" class="btn btn-warning" ng-click="cls()">New</button>
+        </div>
+
+    </div>
+
+
+</body>
+</html>

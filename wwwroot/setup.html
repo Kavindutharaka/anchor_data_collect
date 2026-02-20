@@ -1,0 +1,182 @@
+﻿ 
+<html>
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="keywords" content="Prasanthahv " />
+    <meta name="description" content="Prasanthahv, phv " />
+    <link rel="icon" href="sri60.ico" type="image/icon type">
+    <title>Setup</title>
+    <script src="./support/jquery-3.2.1.min.js"></script>
+    <link href="./support/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="./support/css/login.css" rel="stylesheet" type="text/css" />
+    <link href="./support/phv.css" rel="stylesheet" type="text/css" />
+    <link href="./support/set.css" rel="stylesheet" type="text/css" />
+
+
+
+    <script src="./support/bootstrap.bundle.min.js" type="text/javascript"></script>
+    <script src="./support/bootstrap.min.js"></script>
+    <script type="text/javascript" src="sup/angular.min.js"></script>
+
+    <script src="./set_p.js?=2550"></script>
+
+</head>
+<body style="margin:10px;width:99.9%; " ng-app="APSApp" ng-cloak ng-controller="HomeCtrl">
+    <div class="phveor sample-show-hide" ng-class="{phveorp : phvErrorcolsel == 1,phveorpb : phvErrorcolsel == 2 ,phveorpok : phvErrorcolsel == 3}" ng-show="phvError">
+        <div style="font-size:1em;">{{phvErrorTital}}</div>
+        <div style="font-size:1.5em;"><b>{{phvErrorData}}</b></div>
+    </div>
+     
+
+     
+    <div class="container">
+        <div>
+
+            <div class="tabs">
+                <input class="input" name="tabs" type="radio" id="tab-1" checked="checked" />
+                <label class="label" for="tab-1">Gift</label>
+                <div class="panel">
+                    <h1>Gift</h1>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">T</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="MUG" aria-label="mug" ng-disabled="true" ng-model="t">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">CAP / COASTERS</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="CAP" aria-label="CAP" ng-model="cap">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">Bag / Bottle</span>
+                        </div>
+                        <input type="text" class="form-control" ng-model="bag">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">KEY TAGS</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="KEY TAGS" aria-label="KEY TAGS" ng-model="key_t">
+                    </div>
+                    <button class="button-5" role="button" style="margin-left:50%;" ng-click="events_gift_add()">Update</button>
+                    <hr />
+
+
+                    <h1>Controler</h1>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">Random</span>
+                        </div>
+                        <input type="text" class="form-control" value="0" ng-disabled="true">
+                        <input type="text" class="form-control" placeholder="game time" aria-label="Game Time" ng-model="db_gt">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">Top 1</span>
+                        </div>
+                        <input type="text" class="form-control" ng-model="db_gt" ng-disabled="true">
+                        <input type="text" class="form-control" ng-model="db_g1_t">
+                    </div>
+                    <!-- <div class="input-group mb-3">
+                        -<div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">Random Gift</span>
+                        </div>
+                        <input type="text" class="form-control" ng-model="db_g1_t" ng-disabled="true">
+                        <input type="text" class="form-control" ng-model="rg_t">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">Speed</span>
+                        </div>
+                        <input type="text" class="form-control" ng-disabled="true">
+                        <input type="text" class="form-control" ng-model="sped">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend" style="width:25%;">
+                            <span class="input-group-text" id="basic-addon1" style="width:100%;">Filling Level</span>
+                        </div>
+                        <input type="text" class="form-control" ng-disabled="true">
+                        <input type="text" class="form-control" ng-model="fill_size_db">
+                    </div>-->
+                    <button class="button-3" role="button" style="margin-left:50%;" ng-click="gift_c_up()">Update</button>
+                </div>
+                <input class="input" name="tabs" type="radio" id="tab-2" />
+                <label class="label" for="tab-2">Report</label>
+                <div class="panel">
+                    <h1>Report</h1>
+
+                    <label for="cars">Date</label>
+
+                    <input type="date" class="form-control" ng-model="dt">
+                    <button class="button-3" role="button" style="margin-left:50%;" ng-click="report_01()">Load</button>
+                    <hr />
+
+                    <!--<table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Gift</th>
+                                <th scope="col">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in reg_g_re">
+                                <td>{{ x.g }}</td>
+                                <td>{{ x.c }}</td>
+                            </tr>
+                            <tr style="font-weight:bolder;">
+                                <td>Total</td>
+                                <td>{{ tot }}</td>
+                            </tr>
+
+                        </tbody>
+                    </table>-->
+                    <!--<hr />-->
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">TP</th>
+                                <th scope="col">Gift</th>
+                                <th scope="col">Location</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in report1">
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ x.nm }}</td>
+                                <td>{{ x.tp }}</td>
+                                <td>{{ x.gn }}</td>
+                                <td>{{ x.lo }}</td>
+                                <td>{{ x.dt }}</td>
+                                <td>{{ x.t }}</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+                
+            </div>
+        </div>
+ 
+    </div>
+
+
+
+
+
+
+
+</body>
+</html>
