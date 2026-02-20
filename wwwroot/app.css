@@ -5,9 +5,11 @@
 
 body {
     background-color: #f99a1e;
-    position: fixed;
     overscroll-behavior-y: contain;
     overscroll-behavior-x: contain;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    min-height: 100vh;
 }
 
 @font-face {
@@ -24,7 +26,7 @@ body {
     height: 1920px;
     position: absolute;
     margin-left: -10px;
-    margin-top: -10px; 
+    margin-top: -10px;
 }
 
 /* HTML: <div class="loader"></div> */
@@ -69,8 +71,8 @@ body {
     color: #fff;
     cursor: pointer;
     display: inline-flex;
-     
-    font-size: 30px; 
+
+    font-size: 30px;
     justify-content: center;
     line-height: 1.25;
     margin: 0;
@@ -175,10 +177,132 @@ body {
     0% {
         top: -5%;
         transform:rotate(0deg);
-    }  
+    }
 
     100% {
         top: 150%;
         transform:rotate(900deg);
     }
+}
+
+/* ============ LOADING OVERLAY ============ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.loading-overlay img {
+    width: 150px;
+}
+
+/* ============ MOBILE FORM STYLES ============ */
+@media (max-width: 767px) {
+
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Stack label on top of input */
+    .input-group {
+        flex-direction: column;
+    }
+    .input-group .input-group-prepend {
+        width: 100% !important;
+    }
+    .input-group .input-group-prepend .input-group-text {
+        border-radius: .25rem .25rem 0 0;
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+    .input-group .form-control,
+    .input-group .custom-select,
+    .input-group .btn {
+        border-radius: 0 0 .25rem .25rem;
+        font-size: 14px;
+    }
+
+    /* Image preview smaller on mobile */
+    .img-preview img {
+        max-width: 150px !important;
+        max-height: 120px !important;
+    }
+
+    /* Save/New buttons full width */
+    .btn-row .btn {
+        width: 45%;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    /* Heading smaller */
+    h1 {
+        font-size: 22px;
+    }
+
+    /* Bottom padding so buttons don't get cut */
+    .container {
+        padding-bottom: 30px;
+    }
+}
+
+/* ============ DB PAGE - CARD LAYOUT FOR MOBILE ============ */
+.shop-card {
+    background: #343a40;
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+.shop-card .shop-card-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+.shop-card .shop-card-sub {
+    font-size: 13px;
+    color: #ccc;
+    margin-bottom: 2px;
+}
+.shop-card .shop-card-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+.shop-card .shop-card-btns .btn {
+    font-size: 12px;
+    padding: 4px 10px;
+}
+
+/* Hide table on mobile, show cards */
+@media (max-width: 767px) {
+    .desktop-table {
+        display: none !important;
+    }
+    .mobile-cards {
+        display: block !important;
+    }
+}
+/* Hide cards on desktop, show table */
+@media (min-width: 768px) {
+    .desktop-table {
+        display: table !important;
+    }
+    .mobile-cards {
+        display: none !important;
+    }
+}
+
+/* DB modal image responsive */
+.modal-body img {
+    max-width: 100%;
+    height: auto;
 }
