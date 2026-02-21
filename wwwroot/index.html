@@ -16,17 +16,62 @@
     <link rel="stylesheet" href="sup/animate.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="app.js?t=260220004"></script>
+    <script type="text/javascript" src="app.js?t=2874805"></script>
 </head>
 <body ng-app="PHVApp" ng-cloak ng-controller="HomeCtrl">
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay" ng-show="data_saveing == 1">
-        <img src="loading.gif" />
-        <div class="loading-text">Saving data...</div>
+    <div class="loading-overlay" ng-show="data_saveing > 0">
+        <div ng-if="data_saveing == 1">
+            <img src="loading.gif" />
+            <div class="loading-text">Saving data...</div>
+        </div>
+        <div ng-if="data_saveing == 2" class="save-success-wrap">
+            <div class="save-success-icon">&#10003;</div>
+            <div class="save-success-text">Saved!</div>
+        </div>
+    </div>
+
+    <!-- Root Code Panel Overlay -->
+    <div class="rc-panel-overlay" ng-show="showRCPanel" ng-click="closeRCPanelOutside($event)">
+        <div class="rc-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title">Set Root Code</div>
+            <div class="rc-panel-sub">Enter your assigned root code (e.g. C01542). Required to submit visits.</div>
+
+            <div class="rc-input-row">
+                <input type="text" ng-model="rcInput" placeholder="e.g. C01542" maxlength="20" />
+                <button type="button" class="btn-rc-set" ng-click="setRootCode()">Set</button>
+            </div>
+
+            <div class="rc-saved-list" ng-if="rcSavedCodes.length > 0">
+                <div class="rc-saved-item" ng-repeat="c in rcSavedCodes"
+                     ng-class="{active: c === rootCode}"
+                     ng-click="selectRootCode(c)">
+                    <span class="rc-code-txt">{{c}}</span>
+                    <span class="rc-active-tag" ng-if="c === rootCode">&#10003; Active</span>
+                </div>
+            </div>
+
+            <button type="button" class="rc-panel-close" ng-click="closeRCPanel()" ng-if="rootCode">Cancel</button>
+        </div>
     </div>
 
     <div class="container">
+
+        <!-- Fonterra Logo -->
+        <div class="logo-header">
+            <img src="logo/fonterra-masterbrand-logo.png" alt="Fonterra" ng-click="openRCPanel()" title="Click to set root code" />
+        </div>
+
+        <!-- Root Code Badge -->
+        <div class="root-code-badge" ng-click="openRCPanel()">
+            <span class="badge-inner">
+                <span class="badge-dot" ng-class="{empty: !rootCode}"></span>
+                <span ng-if="rootCode">{{rootCode}}</span>
+                <span ng-if="!rootCode" style="color:var(--accent-red);">No Root Code Set</span>
+            </span>
+        </div>
+
         <div class="page-header">
             <h1>Shop Visit</h1>
         </div>
@@ -124,7 +169,7 @@
                     <div class="modal-header">
                         <h5 class="modal-title">{{cameraTitle}}</h5>
                         <button type="button" class="close" ng-click="closeCamera()" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" style="color:#fff;">&times;</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body" style="text-align:center;padding:8px;">

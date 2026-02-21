@@ -9,6 +9,70 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
 
     $scope.cameraTitle = "Capture Photo";
 
+    // ============ ROOT CODE ============
+
+    function loadRootCodes() {
+        try {
+            return JSON.parse(localStorage.getItem('tb_root_codes') || '[]');
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveRootCodes(codes) {
+        localStorage.setItem('tb_root_codes', JSON.stringify(codes));
+    }
+
+    $scope.rootCode = localStorage.getItem('tb_active_code') || '';
+    $scope.rcSavedCodes = loadRootCodes();
+    $scope.rcInput = '';
+    $scope.showRCPanel = false;
+
+    $scope.openRCPanel = function () {
+        $scope.rcInput = '';
+        $scope.rcSavedCodes = loadRootCodes();
+        $scope.showRCPanel = true;
+    };
+
+    $scope.closeRCPanel = function () {
+        $scope.showRCPanel = false;
+    };
+
+    $scope.closeRCPanelOutside = function ($event) {
+        $scope.showRCPanel = false;
+    };
+
+    $scope.setRootCode = function () {
+        var code = ($scope.rcInput || '').trim().toUpperCase();
+        if (!code) return;
+
+        var codes = loadRootCodes();
+        if (codes.indexOf(code) === -1) {
+            codes.push(code);
+            saveRootCodes(codes);
+        }
+        localStorage.setItem('tb_active_code', code);
+        $scope.rootCode = code;
+        $scope.rcSavedCodes = codes;
+        $scope.rcInput = '';
+        $scope.showRCPanel = false;
+    };
+
+    $scope.selectRootCode = function (code) {
+        localStorage.setItem('tb_active_code', code);
+        $scope.rootCode = code;
+        $scope.showRCPanel = false;
+    };
+
+    // Open panel on load if no active code
+    if (!$scope.rootCode) {
+        $timeout(function () {
+            $scope.showRCPanel = true;
+        }, 400);
+    }
+
+    // ============ GPS ============
+
     $scope.loadgps = function () {
 
         if ("geolocation" in navigator) {
@@ -106,16 +170,25 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
 
     $scope.data_saveing = 0;
     $scope.save = function () {
+        // Require root code before saving
+        if (!$scope.rootCode) {
+            $scope.openRCPanel();
+            return;
+        }
+
         if (Number($scope.data_saveing) == 0) {
             $scope.data_saveing = 1;
+            var rootCode = $scope.rootCode;
+
             // Step 1: Insert basic data and get ID
             var objs = {
-                "SysID": "exec [dbo].[tb_shop_visit_call] '" + $scope.shop_name + "','" + $scope.owner_contact + "','" + $scope.shop_address + "','" + lat + "','" + lng + "','" + $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ss') + "'"
+                "SysID": "exec [dbo].[tb_shop_visit_call] '" + $scope.shop_name + "','" + $scope.owner_contact + "','" + $scope.shop_address + "','" + lat + "','" + lng + "','" + $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ss') + "','" + rootCode + "'"
             };
             console.log(objs);
             $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (responsea) {
                 console.log(responsea.data[0].i);
                 var id = responsea.data[0].i;
+                $scope.data_saveing = 2; // switch to success state
 
                 // Build filenames using the returned ID
                 var boardFileName = $scope.selFileBoard ? id + '_board.' + $scope.fileExBoard : '';
