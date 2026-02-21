@@ -475,13 +475,18 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 9px 12px;
+    gap: 8px;
+    padding: 10px 12px;
     border: 1px solid var(--border);
     border-radius: 8px;
     margin-bottom: 6px;
     cursor: pointer;
     background: var(--bg-input);
     transition: background 0.1s;
+    overflow: hidden;
+}
+.rc-saved-item:active {
+    background: var(--bg-label);
 }
 .rc-saved-item.active {
     border-color: var(--accent);

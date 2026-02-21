@@ -1,28 +1,33 @@
 var app = angular.module('CodeApp', []);
-app.controller('CodeCtrl', function ($scope) {
+app.controller('CodeCtrl', function ($scope, $http) {
 
-    var CODES_KEY = 'tb_root_codes';
-    var ACTIVE_KEY = 'tb_active_code';
-
-    function loadCodes() {
-        try {
-            return JSON.parse(localStorage.getItem(CODES_KEY) || '[]');
-        } catch (e) {
-            return [];
-        }
-    }
-
-    function saveCodes(codes) {
-        localStorage.setItem(CODES_KEY, JSON.stringify(codes));
-    }
-
-    $scope.codes = loadCodes();
-    $scope.activeCode = localStorage.getItem(ACTIVE_KEY) || '';
+    $scope.codes = [];
     $scope.newCode = '';
+    $scope.newDesc = '';
     $scope.errorMsg = '';
+    $scope.loading = false;
+    $scope.saving = false;
 
+    // ============ LOAD CODES FROM DB ============
+    function loadFromDB() {
+        $scope.loading = true;
+        var objs = {
+            "SysID": "select * from [dbo].[tb_root_codes] order by code asc"
+        };
+        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (res) {
+            $scope.codes = res.data;
+            $scope.loading = false;
+        }, function () {
+            $scope.loading = false;
+        });
+    }
+
+    loadFromDB();
+
+    // ============ ADD CODE TO DB ============
     $scope.addCode = function () {
         var code = ($scope.newCode || '').trim().toUpperCase();
+        var desc = ($scope.newDesc || '').trim();
         $scope.errorMsg = '';
 
         if (!code) {
@@ -30,41 +35,31 @@ app.controller('CodeCtrl', function ($scope) {
             return;
         }
 
-        var codes = loadCodes();
-        if (codes.indexOf(code) === -1) {
-            codes.push(code);
-            saveCodes(codes);
-        }
-
-        // Set as active
-        localStorage.setItem(ACTIVE_KEY, code);
-        $scope.activeCode = code;
-        $scope.codes = codes;
-        $scope.newCode = '';
+        $scope.saving = true;
+        var objs = {
+            "SysID": "exec [dbo].[tb_root_code_save] '" + code + "','" + desc + "'"
+        };
+        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function () {
+            $scope.newCode = '';
+            $scope.newDesc = '';
+            $scope.saving = false;
+            loadFromDB();
+        }, function () {
+            $scope.errorMsg = 'Failed to save. Please try again.';
+            $scope.saving = false;
+        });
     };
 
-    $scope.setActive = function (code) {
-        localStorage.setItem(ACTIVE_KEY, code);
-        $scope.activeCode = code;
-    };
+    // ============ DELETE CODE FROM DB ============
+    $scope.deleteCode = function (item) {
+        if (!confirm('Delete code "' + item.code + '"?')) return;
 
-    $scope.deleteCode = function (code) {
-        var codes = loadCodes();
-        var idx = codes.indexOf(code);
-        if (idx !== -1) {
-            codes.splice(idx, 1);
-            saveCodes(codes);
-        }
-        $scope.codes = codes;
-
-        // If we deleted the active code, clear it
-        if ($scope.activeCode === code) {
-            localStorage.removeItem(ACTIVE_KEY);
-            $scope.activeCode = codes.length > 0 ? codes[codes.length - 1] : '';
-            if ($scope.activeCode) {
-                localStorage.setItem(ACTIVE_KEY, $scope.activeCode);
-            }
-        }
+        var objs = {
+            "SysID": "exec [dbo].[tb_root_code_delete] " + item.SysID
+        };
+        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function () {
+            loadFromDB();
+        });
     };
 
 });

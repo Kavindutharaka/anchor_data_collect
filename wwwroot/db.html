@@ -67,7 +67,7 @@
                     <label>Root Code</label>
                     <select ng-model="filter_code" style="width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;outline:none;appearance:none;-webkit-appearance:none;box-sizing:border-box;">
                         <option value="">All Codes</option>
-                        <option ng-repeat="c in savedCodes" value="{{c}}">{{c}}</option>
+                        <option ng-repeat="c in savedCodes" value="{{c.code}}">{{c.code}}</option>
                     </select>
                 </div>
                 <div class="date-filter-btns">

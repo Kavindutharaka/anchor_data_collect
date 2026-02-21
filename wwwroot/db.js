@@ -6,12 +6,16 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
     $scope.filter_to = null;
     $scope.filter_code = '';
 
-    // Load saved root codes from localStorage for the filter dropdown
-    try {
-        $scope.savedCodes = JSON.parse(localStorage.getItem('tb_root_codes') || '[]');
-    } catch (e) {
-        $scope.savedCodes = [];
-    }
+    // Load root codes from DB for the filter dropdown
+    $scope.savedCodes = [];
+    (function () {
+        var objs = {
+            "SysID": "select * from [dbo].[tb_root_codes] order by code asc"
+        };
+        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (res) {
+            $scope.savedCodes = res.data;
+        });
+    })();
 
     function buildWhereClause() {
         var conditions = [];

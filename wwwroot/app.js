@@ -11,27 +11,28 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
 
     // ============ ROOT CODE ============
 
-    function loadRootCodes() {
-        try {
-            return JSON.parse(localStorage.getItem('tb_root_codes') || '[]');
-        } catch (e) {
-            return [];
-        }
-    }
-
-    function saveRootCodes(codes) {
-        localStorage.setItem('tb_root_codes', JSON.stringify(codes));
-    }
-
     $scope.rootCode = localStorage.getItem('tb_active_code') || '';
-    $scope.rcSavedCodes = loadRootCodes();
-    $scope.rcInput = '';
+    $scope.rcSavedCodes = [];
+    $scope.rcLoading = false;
     $scope.showRCPanel = false;
 
+    function fetchCodesFromDB() {
+        $scope.rcLoading = true;
+        $scope.rcSavedCodes = [];
+        var objs = {
+            "SysID": "select * from [dbo].[tb_root_codes] order by code asc"
+        };
+        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (res) {
+            $scope.rcSavedCodes = res.data;
+            $scope.rcLoading = false;
+        }, function () {
+            $scope.rcLoading = false;
+        });
+    }
+
     $scope.openRCPanel = function () {
-        $scope.rcInput = '';
-        $scope.rcSavedCodes = loadRootCodes();
         $scope.showRCPanel = true;
+        fetchCodesFromDB();
     };
 
     $scope.closeRCPanel = function () {
@@ -42,32 +43,17 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
         $scope.showRCPanel = false;
     };
 
-    $scope.setRootCode = function () {
-        var code = ($scope.rcInput || '').trim().toUpperCase();
-        if (!code) return;
-
-        var codes = loadRootCodes();
-        if (codes.indexOf(code) === -1) {
-            codes.push(code);
-            saveRootCodes(codes);
-        }
-        localStorage.setItem('tb_active_code', code);
-        $scope.rootCode = code;
-        $scope.rcSavedCodes = codes;
-        $scope.rcInput = '';
-        $scope.showRCPanel = false;
-    };
-
+    // User selects a code from DB list → save to localStorage
     $scope.selectRootCode = function (code) {
         localStorage.setItem('tb_active_code', code);
         $scope.rootCode = code;
         $scope.showRCPanel = false;
     };
 
-    // Open panel on load if no active code
+    // Open panel on load if no active code saved in localStorage
     if (!$scope.rootCode) {
         $timeout(function () {
-            $scope.showRCPanel = true;
+            $scope.openRCPanel();
         }, 400);
     }
 

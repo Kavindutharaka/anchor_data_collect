@@ -35,21 +35,33 @@
     <!-- Root Code Panel Overlay -->
     <div class="rc-panel-overlay" ng-show="showRCPanel" ng-click="closeRCPanelOutside($event)">
         <div class="rc-panel" ng-click="$event.stopPropagation()">
-            <div class="rc-panel-title">Set Root Code</div>
-            <div class="rc-panel-sub">Enter your assigned root code (e.g. C01542). Required to submit visits.</div>
+            <div class="rc-panel-title">Select Root Code</div>
+            <div class="rc-panel-sub">Select your assigned root code below. Required to submit visits.</div>
 
-            <div class="rc-input-row">
-                <input type="text" ng-model="rcInput" placeholder="e.g. C01542" maxlength="20" />
-                <button type="button" class="btn-rc-set" ng-click="setRootCode()">Set</button>
+            <!-- Loading state -->
+            <div ng-if="rcLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">
+                Loading codes...
             </div>
 
-            <div class="rc-saved-list" ng-if="rcSavedCodes.length > 0">
+            <!-- Code list from DB -->
+            <div class="rc-saved-list" ng-if="!rcLoading && rcSavedCodes.length > 0">
                 <div class="rc-saved-item" ng-repeat="c in rcSavedCodes"
-                     ng-class="{active: c === rootCode}"
-                     ng-click="selectRootCode(c)">
-                    <span class="rc-code-txt">{{c}}</span>
-                    <span class="rc-active-tag" ng-if="c === rootCode">&#10003; Active</span>
+                     ng-class="{active: c.code === rootCode}"
+                     ng-click="selectRootCode(c.code)">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="rc-code-txt">{{c.code}}</span>
+                            <span class="rc-active-tag" ng-if="c.code === rootCode">&#10003; Active</span>
+                        </div>
+                        <div ng-if="c.description" style="font-size:11px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{c.description}}</div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Empty state -->
+            <div ng-if="!rcLoading && rcSavedCodes.length === 0"
+                 style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
+                No root codes available. Contact your administrator.
             </div>
 
             <button type="button" class="rc-panel-close" ng-click="closeRCPanel()" ng-if="rootCode">Cancel</button>
