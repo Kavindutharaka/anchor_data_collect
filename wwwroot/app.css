@@ -274,6 +274,31 @@ body {
     background: var(--bg-label);
 }
 
+/* ============ VALIDATION ERROR BOX ============ */
+.validation-error-box {
+    background: #fff3f3;
+    border: 1px solid #f8c5c5;
+    border-left: 4px solid var(--accent-red);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+.validation-error-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-red);
+    margin-bottom: 6px;
+}
+.validation-error-list {
+    margin: 0;
+    padding-left: 18px;
+}
+.validation-error-list li {
+    font-size: 13px;
+    color: var(--accent-red);
+    margin-bottom: 2px;
+}
+
 /* ============ ACTION BUTTONS ============ */
 .btn-row {
     display: flex;

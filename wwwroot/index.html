@@ -196,6 +196,14 @@
             </div>
         </div>
 
+        <!-- Validation Errors -->
+        <div class="validation-error-box" ng-show="validationErrors.length > 0">
+            <div class="validation-error-title">Please provide the following required fields:</div>
+            <ul class="validation-error-list">
+                <li ng-repeat="err in validationErrors">{{err}}</li>
+            </ul>
+        </div>
+
         <!-- Action Buttons -->
         <div class="btn-row">
             <button type="button" class="btn-save" ng-click="save()">Save</button>

@@ -101,6 +101,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
         $scope.fileExRackBefore = "";
         $scope.fileExRackAfter = "";
         $scope.fileExSignature = "";
+        $scope.validationErrors = [];
         // Reset file inputs
         var fileInputs = document.querySelectorAll('input[type="file"]');
         for (var i = 0; i < fileInputs.length; i++) {
@@ -149,9 +150,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
             $scope.uploadFile($scope.selFileSelfie, id + '_selfie.jpg');
         }
 
-        $timeout(function () {
-            $window.location.reload();
-        }, 20000);
+        // files upload via XHR in background; no reload needed
     };
 
     $scope.data_saveing = 0;
@@ -161,6 +160,16 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
             $scope.openRCPanel();
             return;
         }
+
+        // Validate required image / location fields
+        $scope.validationErrors = [];
+        if (!$scope.selFileBoard)     $scope.validationErrors.push('Shop Name Board Picture');
+        if (!$scope.live_location)    $scope.validationErrors.push('Live Location');
+        if (!$scope.selFileRackBefore) $scope.validationErrors.push('Shop Product Rack Before Picture');
+        if (!$scope.selFileRackAfter)  $scope.validationErrors.push('Shop Product Rack After Picture');
+        if (!$scope.selFileSignature)  $scope.validationErrors.push('Shop Owner Signature Picture');
+        if (!$scope.selFileSelfie)     $scope.validationErrors.push('Selfie with Shop');
+        if ($scope.validationErrors.length > 0) return;
 
         if (Number($scope.data_saveing) == 0) {
             $scope.data_saveing = 1;
@@ -175,6 +184,10 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window
                 console.log(responsea.data[0].i);
                 var id = responsea.data[0].i;
                 $scope.data_saveing = 2; // switch to success state
+                $timeout(function () {
+                    $scope.data_saveing = 0;
+                    $scope.cls();
+                }, 3000);
 
                 // Build filenames using the returned ID
                 var boardFileName = $scope.selFileBoard ? id + '_board.' + $scope.fileExBoard : '';
