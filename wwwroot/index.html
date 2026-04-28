@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="sup/animate.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="app.js?t=2874805"></script>
+    <script type="text/javascript" src="app.js?t=28042026"></script>
 </head>
 <body ng-app="PHVApp" ng-cloak ng-controller="HomeCtrl">
 
@@ -37,13 +37,9 @@
         <div class="rc-panel" ng-click="$event.stopPropagation()">
             <div class="rc-panel-title">Select Root Code</div>
             <div class="rc-panel-sub">Select your assigned root code below. Required to submit visits.</div>
-
-            <!-- Loading state -->
             <div ng-if="rcLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">
                 Loading codes...
             </div>
-
-            <!-- Code list from DB -->
             <div class="rc-saved-list" ng-if="!rcLoading && rcSavedCodes.length > 0">
                 <div class="rc-saved-item" ng-repeat="c in rcSavedCodes"
                      ng-class="{active: c.code === rootCode}"
@@ -57,14 +53,42 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Empty state -->
             <div ng-if="!rcLoading && rcSavedCodes.length === 0"
                  style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
                 No root codes available. Contact your administrator.
             </div>
-
             <button type="button" class="rc-panel-close" ng-click="closeRCPanel()" ng-if="rootCode">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Outlet Panel Overlay -->
+    <div class="rc-panel-overlay" ng-show="showOutletPanel" ng-click="closeOutletPanelOutside($event)">
+        <div class="rc-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title">Select Shop</div>
+            <div class="rc-panel-sub">Select the outlet you are visiting today.</div>
+            <div ng-if="outletLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">
+                Loading shops...
+            </div>
+            <div class="rc-saved-list" ng-if="!outletLoading && outlets.length > 0">
+                <div class="rc-saved-item" ng-repeat="o in outlets"
+                     ng-class="{active: o.outlet_code === selectedOutletCode}"
+                     ng-click="selectOutlet(o)">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="rc-code-txt">{{o.outlet_code}}</span>
+                            <span class="rc-active-tag" ng-if="o.outlet_code === selectedOutletCode">&#10003; Selected</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
+                            {{o.shop_name}} &middot; {{o.town}} &middot; {{o.owner_contact}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="!outletLoading && outlets.length === 0"
+                 style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
+                No shops registered. Contact your administrator.
+            </div>
+            <button type="button" class="rc-panel-close" ng-click="closeOutletPanel()" ng-if="selectedOutletCode">Cancel</button>
         </div>
     </div>
 
@@ -88,32 +112,25 @@
             <h1>Shop Visit</h1>
         </div>
 
-        <!-- Shop Name -->
+        <!-- Shop / Outlet Selection -->
         <div class="field-group">
-            <label class="field-label">Shop Name</label>
-            <input type="text" class="field-input" ng-model="shop_name" ng-change="loadgps()" placeholder="Enter shop name">
+            <label class="field-label">Shop <span style="color:var(--accent-red);">*</span></label>
+            <div class="root-code-badge" ng-click="openOutletPanel()" style="cursor:pointer;">
+                <span class="badge-inner">
+                    <span class="badge-dot" ng-class="{empty: !selectedOutletCode}"></span>
+                    <span ng-if="selectedOutletCode">{{selectedOutletCode}}</span>
+                    <span ng-if="!selectedOutletCode" style="color:var(--accent-red);">Tap to Select Shop</span>
+                </span>
+            </div>
+            <div ng-if="selectedOutlet" style="font-size:12px;color:var(--text-secondary);margin-top:6px;padding-left:2px;">
+                {{selectedOutlet.shop_name}} &middot; {{selectedOutlet.town}} &middot; {{selectedOutlet.owner_contact}}
+            </div>
         </div>
 
-        <!-- Owner Contact -->
-        <div class="field-group">
-            <label class="field-label">Shop Owner Contact</label>
-            <input type="tel" class="field-input" ng-model="owner_contact" placeholder="Enter contact number">
-        </div>
-
-        <!-- Shop Address -->
-        <div class="field-group">
-            <label class="field-label">Shop Address</label>
-            <input type="text" class="field-input" ng-model="shop_address" placeholder="Enter shop address">
-        </div>
-
-        <!-- Shop Name Board Picture -->
+        <!-- Shop Name Board Picture — camera only -->
         <div class="field-group">
             <label class="field-label">Shop Name Board Picture</label>
-            <div class="field-dual-btn">
-                <button type="button" class="btn-upload" onclick="document.getElementById('fileBoard').click()">Upload Image</button>
-                <button type="button" class="btn-cam" ng-click="openCameraFor('board')">Use Camera</button>
-            </div>
-            <input type="file" accept="image/*" id="fileBoard" style="display:none;" onchange="angular.element(this).scope().SelectFileBoard(event)">
+            <button type="button" class="btn-camera" ng-click="openCameraFor('board')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="boardPreview" class="img-preview">
             <img ng-src="{{boardPreview}}" />
@@ -125,49 +142,82 @@
             <input type="text" class="field-input" ng-model="live_location" placeholder="Fetching GPS..." readonly>
         </div>
 
-        <!-- Rack Before Picture -->
+        <!-- Rack Before Picture — camera only -->
         <div class="field-group">
             <label class="field-label">Shop Product Rack Before Picture</label>
-            <div class="field-dual-btn">
-                <button type="button" class="btn-upload" onclick="document.getElementById('fileRackBefore').click()">Upload Image</button>
-                <button type="button" class="btn-cam" ng-click="openCameraFor('rackBefore')">Use Camera</button>
-            </div>
-            <input type="file" accept="image/*" id="fileRackBefore" style="display:none;" onchange="angular.element(this).scope().SelectFileRackBefore(event)">
+            <button type="button" class="btn-camera" ng-click="openCameraFor('rackBefore')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="rackBeforePreview" class="img-preview">
             <img ng-src="{{rackBeforePreview}}" />
         </div>
 
-        <!-- Rack After Picture -->
+        <!-- Rack After Picture — camera only -->
         <div class="field-group">
             <label class="field-label">Shop Product Rack After Picture</label>
-            <div class="field-dual-btn">
-                <button type="button" class="btn-upload" onclick="document.getElementById('fileRackAfter').click()">Upload Image</button>
-                <button type="button" class="btn-cam" ng-click="openCameraFor('rackAfter')">Use Camera</button>
-            </div>
-            <input type="file" accept="image/*" id="fileRackAfter" style="display:none;" onchange="angular.element(this).scope().SelectFileRackAfter(event)">
+            <button type="button" class="btn-camera" ng-click="openCameraFor('rackAfter')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="rackAfterPreview" class="img-preview">
             <img ng-src="{{rackAfterPreview}}" />
         </div>
 
-        <!-- Owner Signature -->
+        <!-- Fonterra Product Availability Checklist -->
+        <div class="field-group">
+            <label class="field-label">Fonterra Product Availability</label>
+            <div ng-if="productsLoading" style="color:var(--text-secondary);font-size:13px;padding:8px 0;">
+                Loading products...
+            </div>
+            <div ng-if="!productsLoading && fonterraProducts.length === 0"
+                 style="color:var(--text-secondary);font-size:13px;padding:8px 0;">
+                No products configured. Contact your administrator.
+            </div>
+            <div ng-repeat="p in fonterraProducts"
+                 style="padding:10px 0;border-bottom:1px solid var(--border);">
+                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
+                    <input type="checkbox" ng-model="p.checked"
+                           style="width:20px;height:20px;cursor:pointer;flex-shrink:0;" />
+                    <span style="font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Fonterra Rack Image — camera only -->
+        <div class="field-group">
+            <label class="field-label">Upload Rack Image</label>
+            <button type="button" class="btn-camera" ng-click="openCameraFor('rackFonterra')">Open Camera &amp; Capture</button>
+        </div>
+        <div ng-show="rackFonterraPreview" class="img-preview">
+            <img ng-src="{{rackFonterraPreview}}" />
+        </div>
+
+        <!-- Competitor Products Text -->
+        <div class="field-group">
+            <label class="field-label">Availability of Competitive Products</label>
+            <input type="text" class="field-input" ng-model="competitor_text"
+                   placeholder="Enter competitive product details">
+        </div>
+
+        <!-- Competitor Rack Image — camera only -->
+        <div class="field-group">
+            <label class="field-label">Capture Rack Image (Competitor)</label>
+            <button type="button" class="btn-camera" ng-click="openCameraFor('competitorRack')">Open Camera &amp; Capture</button>
+        </div>
+        <div ng-show="competitorRackPreview" class="img-preview">
+            <img ng-src="{{competitorRackPreview}}" />
+        </div>
+
+        <!-- Owner Signature — camera only -->
         <div class="field-group">
             <label class="field-label">Shop Owner Signature Picture</label>
-            <div class="field-dual-btn">
-                <button type="button" class="btn-upload" onclick="document.getElementById('fileSignature').click()">Upload Image</button>
-                <button type="button" class="btn-cam" ng-click="openCameraFor('signature')">Use Camera</button>
-            </div>
-            <input type="file" accept="image/*" id="fileSignature" style="display:none;" onchange="angular.element(this).scope().SelectFileSignature(event)">
+            <button type="button" class="btn-camera" ng-click="openCameraFor('signature')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="signaturePreview" class="img-preview">
             <img ng-src="{{signaturePreview}}" />
         </div>
 
-        <!-- Selfie with Shop (Camera Only) -->
+        <!-- Selfie with Shop -->
         <div class="field-group">
             <label class="field-label">Selfie with Shop</label>
-            <button type="button" class="btn-camera" ng-click="openCameraFor('selfie')">Open Camera & Capture</button>
+            <button type="button" class="btn-camera" ng-click="openCameraFor('selfie')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="selfiePreview" class="img-preview">
             <img ng-src="{{selfiePreview}}" />

@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(netstat -ano)"
+      "PowerShell(netstat -ano)",
+      "Bash(curl -s --location https://mas.phvtech.com/api/Master/sp --header 'Content-Type: application/json' --data '{\"SysID\": \"USE [phvtechc_tb]; SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='\\\\''BASE TABLE'\\\\'' ORDER BY TABLE_NAME\"}')"
     ]
   }
 }
