@@ -8,43 +8,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.cameraTitle = "Capture Photo";
 
-    // ============ ROOT CODE (promoter territory — persists in localStorage) ============
-
-    $scope.rootCode = localStorage.getItem('tb_active_code') || '';
-    $scope.rcSavedCodes = [];
-    $scope.rcLoading = false;
-    $scope.showRCPanel = false;
-
-    function fetchCodesFromDB() {
-        $scope.rcLoading = true;
-        $scope.rcSavedCodes = [];
-        $http.post('./api/Mater/sp', JSON.stringify({
-            "SysID": "select * from [dbo].[tb_root_codes] order by code asc"
-        })).then(function (res) {
-            $scope.rcSavedCodes = res.data;
-            $scope.rcLoading = false;
-        }, function () { $scope.rcLoading = false; });
-    }
-
-    $scope.openRCPanel = function () {
-        $scope.showRCPanel = true;
-        fetchCodesFromDB();
-    };
-
-    $scope.closeRCPanel = function () { $scope.showRCPanel = false; };
-    $scope.closeRCPanelOutside = function () { $scope.showRCPanel = false; };
-
-    $scope.selectRootCode = function (code) {
-        localStorage.setItem('tb_active_code', code);
-        $scope.rootCode = code;
-        $scope.showRCPanel = false;
-    };
-
-    if (!$scope.rootCode) {
-        $timeout(function () { $scope.openRCPanel(); }, 400);
-    }
-
-    // ============ OUTLET / SHOP SELECTION (per visit) ============
+    // ============ OUTLET / SHOP SELECTION ============
 
     $scope.outlets = [];
     $scope.selectedOutletCode = '';
@@ -55,7 +19,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
     function fetchOutlets() {
         $scope.outletLoading = true;
         $http.post('./api/Mater/sp', JSON.stringify({
-            "SysID": "select * from [dbo].[tb_outlets] order by outlet_code asc"
+            "SysID": "USE [phvtechc_tb]; SELECT * FROM [dbo].[tb_outlets] ORDER BY outlet_code ASC"
         })).then(function (res) {
             $scope.outlets = res.data;
             $scope.outletLoading = false;
@@ -76,6 +40,9 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         $scope.showOutletPanel = false;
     };
 
+    // Open outlet panel on load so promoter picks shop first
+    $timeout(function () { $scope.openOutletPanel(); }, 400);
+
     // ============ FONTERRA PRODUCTS CHECKLIST ============
 
     $scope.fonterraProducts = [];
@@ -84,7 +51,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
     function fetchProducts() {
         $scope.productsLoading = true;
         $http.post('./api/Mater/sp', JSON.stringify({
-            "SysID": "select * from [dbo].[tb_products] order by SysID asc"
+            "SysID": "USE [phvtechc_tb]; SELECT * FROM [dbo].[tb_products] ORDER BY SysID ASC"
         })).then(function (res) {
             $scope.fonterraProducts = res.data.map(function (p) {
                 return { SysID: p.SysID, product_name: p.product_name, checked: false };
@@ -143,7 +110,6 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         $scope.fileExRackAfter = "";
         $scope.fileExSignature = "";
 
-        // Reset checklist without reloading from DB
         angular.forEach($scope.fonterraProducts, function (p) { p.checked = false; });
 
         $scope.validationErrors = [];
@@ -177,8 +143,6 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.data_saveing = 0;
     $scope.save = function () {
-        if (!$scope.rootCode) { $scope.openRCPanel(); return; }
-
         $scope.validationErrors = [];
         if (!$scope.selectedOutletCode)  $scope.validationErrors.push('Shop (select from the outlet list)');
         if (!$scope.selFileBoard)        $scope.validationErrors.push('Shop Name Board Picture');
@@ -198,12 +162,11 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
             .join(',');
 
         var objs = {
-            "SysID": "exec [dbo].[tb_shop_visit_call] '"
+            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_shop_visit_call] '"
                 + $scope.selectedOutletCode      + "','"
                 + lat                            + "','"
                 + lng                            + "','"
                 + $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ss') + "','"
-                + $scope.rootCode                + "','"
                 + ($scope.competitor_text || '') + "','"
                 + checklist                      + "'"
         };
@@ -216,16 +179,16 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
                 $scope.cls();
             }, 3000);
 
-            var boardFileName          = $scope.selFileBoard          ? id + '_board.' + $scope.fileExBoard              : '';
-            var rackBeforeFileName     = $scope.selFileRackBefore     ? id + '_rack_before.' + $scope.fileExRackBefore   : '';
-            var rackAfterFileName      = $scope.selFileRackAfter      ? id + '_rack_after.' + $scope.fileExRackAfter     : '';
-            var signatureFileName      = $scope.selFileSignature      ? id + '_signature.' + $scope.fileExSignature      : '';
-            var selfieFileName         = $scope.selFileSelfie         ? id + '_selfie.jpg'                               : '';
-            var rackFonterraFileName   = $scope.selFileRackFonterra   ? id + '_rack_fonterra.jpg'                        : '';
-            var competitorRackFileName = $scope.selFileCompetitorRack ? id + '_competitor_rack.jpg'                      : '';
+            var boardFileName          = $scope.selFileBoard          ? id + '_board.' + $scope.fileExBoard            : '';
+            var rackBeforeFileName     = $scope.selFileRackBefore     ? id + '_rack_before.' + $scope.fileExRackBefore : '';
+            var rackAfterFileName      = $scope.selFileRackAfter      ? id + '_rack_after.' + $scope.fileExRackAfter   : '';
+            var signatureFileName      = $scope.selFileSignature      ? id + '_signature.' + $scope.fileExSignature    : '';
+            var selfieFileName         = $scope.selFileSelfie         ? id + '_selfie.jpg'                             : '';
+            var rackFonterraFileName   = $scope.selFileRackFonterra   ? id + '_rack_fonterra.jpg'                      : '';
+            var competitorRackFileName = $scope.selFileCompetitorRack ? id + '_competitor_rack.jpg'                    : '';
 
             var updateObj = {
-                "SysID": "exec [dbo].[tb_shop_visit_update_files] "
+                "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_shop_visit_update_files] "
                     + id                       + ",'"
                     + boardFileName            + "','"
                     + rackBeforeFileName       + "','"
@@ -309,11 +272,11 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         var field = currentCameraField;
         canvas.toBlob(function (blob) {
             var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            if      (field === 'board')          { $scope.selFileBoard = blob;          $scope.fileExBoard = 'jpg';          $scope.boardPreview = dataUrl; }
-            else if (field === 'rackBefore')      { $scope.selFileRackBefore = blob;     $scope.fileExRackBefore = 'jpg';     $scope.rackBeforePreview = dataUrl; }
-            else if (field === 'rackAfter')       { $scope.selFileRackAfter = blob;      $scope.fileExRackAfter = 'jpg';      $scope.rackAfterPreview = dataUrl; }
-            else if (field === 'signature')       { $scope.selFileSignature = blob;      $scope.fileExSignature = 'jpg';      $scope.signaturePreview = dataUrl; }
-            else if (field === 'selfie')          { $scope.selFileSelfie = blob;         $scope.selfiePreview = dataUrl;      $scope.selfieTimestamp = timestamp; }
+            if      (field === 'board')          { $scope.selFileBoard = blob;          $scope.fileExBoard = 'jpg';      $scope.boardPreview = dataUrl; }
+            else if (field === 'rackBefore')      { $scope.selFileRackBefore = blob;     $scope.fileExRackBefore = 'jpg'; $scope.rackBeforePreview = dataUrl; }
+            else if (field === 'rackAfter')       { $scope.selFileRackAfter = blob;      $scope.fileExRackAfter = 'jpg';  $scope.rackAfterPreview = dataUrl; }
+            else if (field === 'signature')       { $scope.selFileSignature = blob;      $scope.fileExSignature = 'jpg';  $scope.signaturePreview = dataUrl; }
+            else if (field === 'selfie')          { $scope.selFileSelfie = blob;         $scope.selfiePreview = dataUrl;  $scope.selfieTimestamp = timestamp; }
             else if (field === 'rackFonterra')    { $scope.selFileRackFonterra = blob;   $scope.rackFonterraPreview = dataUrl; }
             else if (field === 'competitorRack')  { $scope.selFileCompetitorRack = blob; $scope.competitorRackPreview = dataUrl; }
             $scope.$apply();

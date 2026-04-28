@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="app.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="code.js?t=28042026"></script>
+    <script type="text/javascript" src="code.js?t=29042026"></script>
 
     <style>
         .code-card {
@@ -39,12 +39,9 @@
             background: var(--accent-green);
             flex-shrink: 0;
         }
-        .code-dot.blue { background: var(--accent); }
+        .code-dot.blue   { background: var(--accent); }
         .code-dot.orange { background: #f59e0b; }
-        .code-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .code-info { flex: 1; min-width: 0; }
         .code-text {
             font-size: 15px;
             font-weight: 700;
@@ -59,11 +56,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .code-card-btns {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
+        .code-card-btns { display: flex; gap: 6px; flex-shrink: 0; }
         .btn-del-code {
             background: transparent;
             color: var(--accent-red);
@@ -111,12 +104,6 @@
             box-sizing: border-box;
         }
         .add-field input:focus { border-color: var(--accent); }
-        .add-field input.code-input {
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
         .btn-add-code {
             width: 100%;
             background: var(--accent);
@@ -128,21 +115,11 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 4px;
-            letter-spacing: 0.3px;
         }
-        .btn-add-code:active { background: var(--accent-hover); }
+        .btn-add-code:active   { background: var(--accent-hover); }
         .btn-add-code:disabled { opacity: 0.6; cursor: default; }
-        .error-msg {
-            color: var(--accent-red);
-            font-size: 12px;
-            margin-top: 6px;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 30px 16px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
+        .error-msg { color: var(--accent-red); font-size: 12px; margin-top: 6px; }
+        .empty-state { text-align: center; padding: 30px 16px; color: var(--text-secondary); font-size: 14px; }
         .nav-back {
             display: inline-flex;
             align-items: center;
@@ -162,12 +139,7 @@
             letter-spacing: 0.8px;
             margin-bottom: 10px;
         }
-        .loading-txt {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
+        .loading-txt { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 14px; }
         .page-section {
             margin-top: 32px;
             padding-top: 24px;
@@ -185,122 +157,68 @@
 
     <div class="container">
 
-        <!-- Logo -->
         <div class="logo-header">
             <img src="logo/fonterra-masterbrand-logo.png" alt="Fonterra" style="cursor:default;" />
         </div>
 
         <a href="index.html" class="nav-back">&#8592; Back to Form</a>
 
-        <!-- ==================== SECTION 1: ROOT CODES ==================== -->
+        <!-- ==================== SECTION 1: SHOP REGISTRATION ==================== -->
         <div class="page-header" style="text-align:left;padding-top:0;">
-            <h1 style="font-size:18px;">Root Code Manager</h1>
+            <h1 style="font-size:18px;">Shop Registration</h1>
         </div>
 
         <div class="add-code-box">
-            <div class="box-title">Add New Root Code</div>
+            <div class="box-title">Register New Shop</div>
             <div class="add-field">
-                <label>Code *</label>
-                <input type="text" class="code-input" ng-model="newCode"
-                       placeholder="e.g. C01542" maxlength="20" />
+                <label>Shop Name *</label>
+                <input type="text" ng-model="newShopName" placeholder="e.g. Rathna PH" maxlength="100" />
             </div>
             <div class="add-field">
-                <label>Description / Note</label>
-                <input type="text" ng-model="newDesc"
-                       placeholder="e.g. Colombo North - Team A" maxlength="200"
-                       ng-keyup="$event.keyCode == 13 && addCode()" />
+                <label>Town *</label>
+                <input type="text" ng-model="newShopTown" placeholder="e.g. Kantale" maxlength="100" />
             </div>
-            <div class="error-msg" ng-if="errorMsg">{{errorMsg}}</div>
-            <button type="button" class="btn-add-code" ng-click="addCode()" ng-disabled="saving">
-                {{saving ? 'Saving...' : 'Add Code'}}
+            <div class="add-field">
+                <label>Owner Contact *</label>
+                <input type="tel" ng-model="newShopContact" placeholder="e.g. 0771234567" maxlength="20"
+                       ng-keyup="$event.keyCode == 13 && addShop()" />
+            </div>
+            <div class="error-msg" ng-if="shopErrorMsg">{{shopErrorMsg}}</div>
+            <button type="button" class="btn-add-code" ng-click="addShop()" ng-disabled="shopSaving">
+                {{shopSaving ? 'Registering...' : 'Register Shop'}}
             </button>
         </div>
 
-        <div class="section-title">Saved Codes ({{codes.length}})</div>
-        <div class="loading-txt" ng-if="loading">Loading...</div>
-        <div ng-if="!loading && codes.length === 0" class="empty-state">
-            No codes added yet. Create your first root code above.
+        <div class="section-title">Registered Shops ({{shops.length}})</div>
+        <div class="loading-txt" ng-if="shopsLoading">Loading...</div>
+        <div ng-if="!shopsLoading && shops.length === 0" class="empty-state">
+            No shops registered yet.
         </div>
-        <div class="code-card" ng-repeat="c in codes">
+        <div class="code-card" ng-repeat="s in shops">
             <div class="code-card-left">
-                <span class="code-dot"></span>
+                <span class="code-dot blue"></span>
                 <div class="code-info">
-                    <div class="code-text">{{c.code}}</div>
-                    <div class="code-desc" ng-if="c.description">{{c.description}}</div>
-                    <div class="code-desc" ng-if="!c.description" style="font-style:italic;">No description</div>
+                    <div class="code-text">{{s.outlet_code}}</div>
+                    <div class="code-desc">{{s.shop_name}} &middot; {{s.town}} &middot; {{s.owner_contact}}</div>
                 </div>
             </div>
             <div class="code-card-btns">
-                <button type="button" class="btn-del-code" ng-click="deleteCode(c)">&#10005; Delete</button>
+                <button type="button" class="btn-del-code" ng-click="deleteShop(s)">&#10005; Delete</button>
             </div>
         </div>
 
-        <!-- ==================== SECTION 2: SHOP REGISTRATION ==================== -->
-        <div class="page-section">
-            <div class="page-section-title">Shop Registration</div>
-
-            <div class="add-code-box">
-                <div class="box-title">Register New Shop</div>
-
-                <div class="add-field">
-                    <label>Shop Name *</label>
-                    <input type="text" ng-model="newShopName"
-                           placeholder="e.g. Rathna PH" maxlength="100" />
-                </div>
-                <div class="add-field">
-                    <label>Town *</label>
-                    <input type="text" ng-model="newShopTown"
-                           placeholder="e.g. Kantale" maxlength="100" />
-                </div>
-                <div class="add-field">
-                    <label>Owner Contact *</label>
-                    <input type="tel" ng-model="newShopContact"
-                           placeholder="e.g. 0771234567" maxlength="20"
-                           ng-keyup="$event.keyCode == 13 && addShop()" />
-                </div>
-
-                <div class="error-msg" ng-if="shopErrorMsg">{{shopErrorMsg}}</div>
-
-                <button type="button" class="btn-add-code" ng-click="addShop()" ng-disabled="shopSaving">
-                    {{shopSaving ? 'Registering...' : 'Register Shop'}}
-                </button>
-            </div>
-
-            <div class="section-title">Registered Shops ({{shops.length}})</div>
-            <div class="loading-txt" ng-if="shopsLoading">Loading...</div>
-            <div ng-if="!shopsLoading && shops.length === 0" class="empty-state">
-                No shops registered yet.
-            </div>
-            <div class="code-card" ng-repeat="s in shops">
-                <div class="code-card-left">
-                    <span class="code-dot blue"></span>
-                    <div class="code-info">
-                        <div class="code-text">{{s.outlet_code}}</div>
-                        <div class="code-desc">{{s.shop_name}} &middot; {{s.town}} &middot; {{s.owner_contact}}</div>
-                    </div>
-                </div>
-                <div class="code-card-btns">
-                    <button type="button" class="btn-del-code" ng-click="deleteShop(s)">&#10005; Delete</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================== SECTION 3: FONTERRA PRODUCTS ==================== -->
+        <!-- ==================== SECTION 2: FONTERRA PRODUCTS ==================== -->
         <div class="page-section">
             <div class="page-section-title">Fonterra Products</div>
 
             <div class="add-code-box">
                 <div class="box-title">Add Product to Checklist</div>
-
                 <div class="add-field">
                     <label>Product Name *</label>
-                    <input type="text" ng-model="newProduct"
-                           placeholder="e.g. Anchor Pediapro" maxlength="200"
+                    <input type="text" ng-model="newProduct" placeholder="e.g. Anchor Pediapro" maxlength="200"
                            ng-keyup="$event.keyCode == 13 && addProduct()" />
                 </div>
-
                 <div class="error-msg" ng-if="productErrorMsg">{{productErrorMsg}}</div>
-
                 <button type="button" class="btn-add-code" ng-click="addProduct()" ng-disabled="productSaving">
                     {{productSaving ? 'Saving...' : 'Add Product'}}
                 </button>

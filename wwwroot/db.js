@@ -1,78 +1,59 @@
 var app = angular.module('PHVApp', []);
-app.controller('HomeCtrl', function ($scope, $http, $filter, $rootScope, $window, $timeout, $location) {
-
+app.controller('HomeCtrl', function ($scope, $http, $filter) {
 
     $scope.filter_from = null;
-    $scope.filter_to = null;
-    $scope.filter_code = '';
+    $scope.filter_to   = null;
+    $scope.filter_outlet = '';
 
-    // Load root codes from DB for the filter dropdown
-    $scope.savedCodes = [];
+    // Load outlet codes for filter dropdown
+    $scope.outlets = [];
     (function () {
-        var objs = {
-            "SysID": "select * from [dbo].[tb_root_codes] order by code asc"
-        };
-        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (res) {
-            $scope.savedCodes = res.data;
-        });
+        $http.post('./api/Mater/sp', JSON.stringify({
+            "SysID": "USE [phvtechc_tb]; SELECT outlet_code, shop_name, town FROM [dbo].[tb_outlets] ORDER BY outlet_code ASC"
+        })).then(function (res) { $scope.outlets = res.data; });
     })();
 
-    function buildWhereClause() {
+    var baseQuery = "USE [phvtechc_tb]; SELECT v.*, o.shop_name, o.town, o.owner_contact FROM [dbo].[tb_shop_visit] v LEFT JOIN [dbo].[tb_outlets] o ON v.outlet_code = o.outlet_code";
+
+    function buildWhere() {
         var conditions = [];
-
         if ($scope.filter_from || $scope.filter_to) {
-            var fromStr = $scope.filter_from ? $filter('date')($scope.filter_from, 'yyyy/MM/dd') : '2000/01/01';
-            var toStr = $scope.filter_to ? $filter('date')($scope.filter_to, 'yyyy/MM/dd') + ' 23:59:59' : '2099/12/31 23:59:59';
-            conditions.push("created_dt >= '" + fromStr + "' and created_dt <= '" + toStr + "'");
+            var from = $scope.filter_from ? $filter('date')($scope.filter_from, 'yyyy/MM/dd') : '2000/01/01';
+            var to   = $scope.filter_to   ? $filter('date')($scope.filter_to,   'yyyy/MM/dd') + ' 23:59:59' : '2099/12/31 23:59:59';
+            conditions.push("v.created_dt >= '" + from + "' AND v.created_dt <= '" + to + "'");
         }
-
-        if ($scope.filter_code) {
-            conditions.push("root_code = '" + $scope.filter_code + "'");
+        if ($scope.filter_outlet) {
+            conditions.push("v.outlet_code = '" + $scope.filter_outlet + "'");
         }
-
-        return conditions.length > 0 ? ' where ' + conditions.join(' and ') : '';
+        return conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
     }
 
     $scope.load = function () {
-        var objs = {
-            "SysID": "select * from [dbo].[tb_shop_visit] order by SysID desc;"
-        };
-
-        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (responsea) {
-            console.log(responsea.data);
-            $scope.reg_lst = responsea.data;
-        }, function (responsea) { });
+        $http.post('./api/Mater/sp', JSON.stringify({
+            "SysID": baseQuery + " ORDER BY v.SysID DESC"
+        })).then(function (res) { $scope.reg_lst = res.data; });
     };
 
     $scope.load();
 
     $scope.filterRecords = function () {
-        var where = buildWhereClause();
-        var objs = {
-            "SysID": "select * from [dbo].[tb_shop_visit]" + where + " order by SysID desc;"
-        };
-
-        $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (responsea) {
-            console.log(responsea.data);
-            $scope.reg_lst = responsea.data;
-        }, function (responsea) { });
+        $http.post('./api/Mater/sp', JSON.stringify({
+            "SysID": baseQuery + buildWhere() + " ORDER BY v.SysID DESC"
+        })).then(function (res) { $scope.reg_lst = res.data; });
     };
 
-    // Keep legacy filterByDate alias
-    $scope.filterByDate = $scope.filterRecords;
-
     $scope.clearFilter = function () {
-        $scope.filter_from = null;
-        $scope.filter_to = null;
-        $scope.filter_code = '';
+        $scope.filter_from   = null;
+        $scope.filter_to     = null;
+        $scope.filter_outlet = '';
         $scope.load();
     };
 
     $scope.img_url = "";
-    $scope.pic_view = function (a, fileName) {
-        $scope.pn = a.shop_name;
+    $scope.pn = "";
+    $scope.pic_view = function (label, fileName) {
+        $scope.pn      = label;
         $scope.img_url = "./img/" + fileName;
-        console.log($scope.img_url);
     };
 
 });
