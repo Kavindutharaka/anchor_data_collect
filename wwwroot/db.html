@@ -87,6 +87,9 @@
                 <div class="date-filter-btns">
                     <button type="button" class="btn-filter" ng-click="filterRecords()">Filter</button>
                     <button type="button" class="btn-filter-clear" ng-click="clearFilter()">All</button>
+                    <button type="button" class="btn-filter" ng-click="downloadCSV()"
+                            ng-disabled="!reg_lst || !reg_lst.length"
+                            style="background:var(--accent-green);">&#8595; CSV</button>
                 </div>
             </div>
         </div>
@@ -102,6 +105,7 @@
                     <th>Map</th>
                     <th>Fonterra Products</th>
                     <th>Competitor</th>
+                    <th>Comments</th>
                     <th>Board</th>
                     <th>Before</th>
                     <th>After</th>
@@ -138,6 +142,9 @@
                     <td style="max-width:140px;">
                         <div style="font-size:12px;color:var(--text-primary);">{{ee.competitor_text || '—'}}</div>
                     </td>
+                    <td style="max-width:160px;">
+                        <div style="font-size:12px;color:var(--text-primary);">{{ee.promoter_comments || '—'}}</div>
+                    </td>
                     <td><button class="btn btn-sm" style="background:var(--accent-green);color:#fff;" ng-if="ee.board_img"          ng-click="pic_view('Board — ' + ee.outlet_code, ee.board_img)"          data-toggle="modal" data-target="#exampleModal">View</button><span ng-if="!ee.board_img"          style="color:var(--text-secondary);">—</span></td>
                     <td><button class="btn btn-sm" style="background:var(--accent-green);color:#fff;" ng-if="ee.rack_before_img"    ng-click="pic_view('Rack Before — ' + ee.outlet_code, ee.rack_before_img)"    data-toggle="modal" data-target="#exampleModal">View</button><span ng-if="!ee.rack_before_img"    style="color:var(--text-secondary);">—</span></td>
                     <td><button class="btn btn-sm" style="background:var(--accent-green);color:#fff;" ng-if="ee.rack_after_img"     ng-click="pic_view('Rack After — ' + ee.outlet_code, ee.rack_after_img)"     data-toggle="modal" data-target="#exampleModal">View</button><span ng-if="!ee.rack_after_img"     style="color:var(--text-secondary);">—</span></td>
@@ -172,6 +179,12 @@
                 <div ng-if="ee.competitor_text" style="margin-top:6px;">
                     <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">COMPETITOR</div>
                     <div class="competitor-text">{{ee.competitor_text}}</div>
+                </div>
+
+                <!-- Promoter comments -->
+                <div ng-if="ee.promoter_comments" style="margin-top:6px;">
+                    <div style="font-size:11px;font-weight:700;color:var(--text-secondary);">COMMENTS</div>
+                    <div class="competitor-text">{{ee.promoter_comments}}</div>
                 </div>
 
                 <div class="shop-card-btns">

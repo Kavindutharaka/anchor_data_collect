@@ -29,16 +29,47 @@
         </div>
     </div>
 
+    <!-- Promoter Panel Overlay -->
+    <div class="rc-panel-overlay" ng-show="showPromoterPanel" ng-click="closePromoterPanelOutside()">
+        <div class="rc-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title">Select Promoter</div>
+            <div class="rc-panel-sub">Select your name. This will be saved for future visits.</div>
+            <input type="text" ng-model="promoterSearch" placeholder="Search promoter name..."
+                   style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;margin-bottom:10px;" />
+            <div ng-if="promoterLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">Loading...</div>
+            <div class="rc-saved-list" ng-if="!promoterLoading && promoters.length > 0">
+                <div class="rc-saved-item" ng-repeat="p in promoters | filter:promoterSearch"
+                     ng-class="{active: p.name === selectedPromoterName}"
+                     ng-click="selectPromoter(p)">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="rc-code-txt">{{p.name}}</span>
+                            <span class="rc-active-tag" ng-if="p.name === selectedPromoterName">&#10003; Active</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">{{p.emp_id}} &middot; {{p.phone}}</div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="!promoterLoading && promoters.length === 0"
+                 style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
+                No promoters registered. Contact your administrator.
+            </div>
+            <button type="button" class="rc-panel-close" ng-click="closePromoterPanel()" ng-if="selectedPromoterName">Cancel</button>
+        </div>
+    </div>
+
     <!-- Outlet Panel Overlay -->
     <div class="rc-panel-overlay" ng-show="showOutletPanel" ng-click="closeOutletPanelOutside()">
         <div class="rc-panel" ng-click="$event.stopPropagation()">
             <div class="rc-panel-title">Select Shop</div>
             <div class="rc-panel-sub">Select the outlet you are visiting today.</div>
+            <input type="text" ng-model="outletSearch" placeholder="Search shop name..."
+                   style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;margin-bottom:10px;" />
             <div ng-if="outletLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">
                 Loading shops...
             </div>
             <div class="rc-saved-list" ng-if="!outletLoading && outlets.length > 0">
-                <div class="rc-saved-item" ng-repeat="o in outlets"
+                <div class="rc-saved-item" ng-repeat="o in outlets | filter:outletSearch"
                      ng-class="{active: o.outlet_code === selectedOutletCode}"
                      ng-click="selectOutlet(o)">
                     <div style="flex:1;min-width:0;">
@@ -65,6 +96,15 @@
         <!-- Fonterra Logo -->
         <div class="logo-header">
             <img src="logo/fonterra-masterbrand-logo.png" alt="Fonterra" style="cursor:default;" />
+        </div>
+
+        <!-- Promoter Badge -->
+        <div class="root-code-badge" ng-click="openPromoterPanel()" style="cursor:pointer;margin-bottom:4px;">
+            <span class="badge-inner">
+                <span class="badge-dot" ng-class="{empty: !selectedPromoterName}"></span>
+                <span ng-if="selectedPromoterName">&#128100; {{selectedPromoterName}}</span>
+                <span ng-if="!selectedPromoterName" style="color:var(--accent-red);">Tap to Select Promoter</span>
+            </span>
         </div>
 
         <div class="page-header">
@@ -203,6 +243,13 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Promoter Comments -->
+        <div class="field-group">
+            <label class="field-label">Promoter Comments</label>
+            <input type="text" class="field-input" ng-model="promoter_comments"
+                   placeholder="Add any comments or notes...">
         </div>
 
         <!-- Validation Errors -->

@@ -1,0 +1,236 @@
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>TB - Promoters</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="app.css" />
+
+    <script type="text/javascript" src="sup/angular.min.js"></script>
+    <script type="text/javascript" src="pro.js?t=29042026"></script>
+
+    <style>
+        .pro-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .pro-card-left { display:flex; align-items:center; gap:12px; flex:1; min-width:0; }
+        .pro-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+        .pro-dot.green { background:var(--accent-green); }
+        .pro-info { flex:1; min-width:0; }
+        .pro-name { font-size:15px; font-weight:700; color:var(--text-primary); }
+        .pro-sub  { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+        .pro-card-btns { display:flex; gap:6px; flex-shrink:0; }
+        .btn-del {
+            background: transparent;
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-del:active { background:#fde8e8; }
+        .add-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .add-box .box-title {
+            font-size: 13px; font-weight: 700; color: var(--text-label);
+            margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .add-field { margin-bottom: 10px; }
+        .add-field label { font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:5px; display:block; }
+        .add-field input {
+            width:100%; padding:10px 12px; border:1px solid var(--border);
+            border-radius:8px; font-size:14px; color:var(--text-primary);
+            background:var(--bg-input); outline:none; box-sizing:border-box;
+        }
+        .add-field input:focus { border-color:var(--accent); }
+        .add-field select {
+            width:100%; padding:10px 12px; border:1px solid var(--border);
+            border-radius:8px; font-size:14px; color:var(--text-primary);
+            background:var(--bg-input); outline:none; box-sizing:border-box;
+            appearance:none; -webkit-appearance:none;
+        }
+        .btn-primary-full {
+            width:100%; background:var(--accent); color:#fff; border:none;
+            border-radius:8px; padding:12px; font-size:15px; font-weight:700;
+            cursor:pointer; margin-top:4px;
+        }
+        .btn-primary-full:active   { background:var(--accent-hover); }
+        .btn-primary-full:disabled { opacity:0.6; cursor:default; }
+        .btn-download {
+            width:100%; background:var(--accent-green); color:#fff; border:none;
+            border-radius:8px; padding:12px; font-size:15px; font-weight:700;
+            cursor:pointer; margin-top:8px;
+        }
+        .btn-download:disabled { opacity:0.5; cursor:default; }
+        .error-msg  { color:var(--accent-red); font-size:12px; margin-top:6px; }
+        .empty-state { text-align:center; padding:30px 16px; color:var(--text-secondary); font-size:14px; }
+        .section-title {
+            font-size:12px; font-weight:700; color:var(--text-secondary);
+            text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;
+        }
+        .loading-txt { text-align:center; padding:20px; color:var(--text-secondary); font-size:14px; }
+        .nav-back {
+            display:inline-flex; align-items:center; gap:6px;
+            color:var(--accent); font-size:14px; font-weight:600;
+            text-decoration:none; margin-bottom:16px;
+        }
+        .nav-back:hover { text-decoration:none; color:var(--accent-hover); }
+        .page-section { margin-top:32px; padding-top:24px; border-top:2px solid var(--border); }
+        .page-section-title { font-size:18px; font-weight:700; color:var(--text-primary); margin-bottom:16px; }
+        .att-table { width:100%; border-collapse:collapse; margin-top:16px; font-size:13px; }
+        .att-table th { background:var(--bg-label); color:var(--text-label); padding:10px 12px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; }
+        .att-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-primary); }
+        .att-table tr:last-child td { border-bottom:none; }
+        .att-count { font-size:13px; color:var(--text-secondary); margin-top:8px; }
+    </style>
+</head>
+<body ng-app="ProApp" ng-cloak ng-controller="ProCtrl">
+
+    <div class="container">
+
+        <div class="logo-header">
+            <img src="logo/fonterra-masterbrand-logo.png" alt="Fonterra" style="cursor:default;" />
+        </div>
+
+        <a href="index.html" class="nav-back">&#8592; Back to Form</a>
+
+        <!-- ==================== SECTION 1: PROMOTER MANAGEMENT ==================== -->
+        <div class="page-header" style="text-align:left;padding-top:0;">
+            <h1 style="font-size:18px;">Promoter Management</h1>
+        </div>
+
+        <div class="add-box">
+            <div class="box-title">Add New Promoter</div>
+            <div class="add-field">
+                <label>Full Name *</label>
+                <input type="text" ng-model="newName" placeholder="e.g. Kavindu Perera" maxlength="200" />
+            </div>
+            <div class="add-field">
+                <label>Phone *</label>
+                <input type="tel" ng-model="newPhone" placeholder="e.g. 0771234567" maxlength="50" />
+            </div>
+            <div class="add-field">
+                <label>Employee ID *</label>
+                <input type="text" ng-model="newEmpId" placeholder="e.g. EMP001" maxlength="50"
+                       ng-keyup="$event.keyCode == 13 && addPromoter()" />
+            </div>
+            <div class="error-msg" ng-if="errorMsg">{{errorMsg}}</div>
+            <button type="button" class="btn-primary-full" ng-click="addPromoter()" ng-disabled="saving">
+                {{saving ? 'Saving...' : 'Add Promoter'}}
+            </button>
+        </div>
+
+        <div class="section-title">Promoters ({{promoters.length}})</div>
+        <div class="loading-txt" ng-if="loading">Loading...</div>
+        <div ng-if="!loading && promoters.length === 0" class="empty-state">No promoters added yet.</div>
+
+        <div class="pro-card" ng-repeat="p in promoters">
+            <div class="pro-card-left">
+                <span class="pro-dot"></span>
+                <div class="pro-info">
+                    <div class="pro-name">{{p.name}}</div>
+                    <div class="pro-sub">{{p.phone}} &middot; {{p.emp_id}}</div>
+                </div>
+            </div>
+            <div class="pro-card-btns">
+                <button type="button" class="btn-del" ng-click="deletePromoter(p)">&#10005; Delete</button>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 2: ATTENDANCE SHEET ==================== -->
+        <div class="page-section">
+            <div class="page-section-title">Attendance Sheet</div>
+
+            <div class="add-box">
+                <div class="box-title">Generate Report</div>
+
+                <div class="add-field">
+                    <label>Promoter *</label>
+                    <select ng-model="att_promoter">
+                        <option value="">-- Select Promoter --</option>
+                        <option ng-repeat="p in att_promoters" value="{{p.name}}">{{p.name}}</option>
+                    </select>
+                </div>
+                <div class="add-field">
+                    <label>From Date</label>
+                    <input type="date" ng-model="att_from" />
+                </div>
+                <div class="add-field">
+                    <label>To Date</label>
+                    <input type="date" ng-model="att_to" />
+                </div>
+
+                <button type="button" class="btn-primary-full" ng-click="generateAttendance()" ng-disabled="att_loading">
+                    {{att_loading ? 'Loading...' : 'Generate'}}
+                </button>
+
+                <button type="button" class="btn-download" ng-click="downloadCSV()"
+                        ng-disabled="!att_records.length">
+                    &#8595; Download CSV
+                </button>
+            </div>
+
+            <!-- Results preview -->
+            <div ng-if="att_searched && !att_loading">
+                <div class="att-count" ng-if="att_records.length > 0">
+                    {{att_records.length}} visit(s) found for <strong>{{att_promoter}}</strong>
+                </div>
+                <div class="empty-state" ng-if="att_records.length === 0">
+                    No visits found for the selected filters.
+                </div>
+
+                <div style="overflow-x:auto;" ng-if="att_records.length > 0">
+                    <table class="att-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Promoter Name</th>
+                                <th>Date</th>
+                                <th>Outlet Code</th>
+                                <th>Shop Name</th>
+                                <th>Town</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="r in att_records">
+                                <td style="color:var(--accent);font-weight:700;">{{$index + 1}}</td>
+                                <td>{{r.promoter_name}}</td>
+                                <td style="white-space:nowrap;">{{r.created_dt}}</td>
+                                <td>
+                                    <span style="font-weight:700;font-size:12px;background:var(--bg-label);color:var(--text-label);padding:2px 8px;border-radius:10px;">
+                                        {{r.outlet_code}}
+                                    </span>
+                                </td>
+                                <td>{{r.shop_name}}</td>
+                                <td>{{r.town}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

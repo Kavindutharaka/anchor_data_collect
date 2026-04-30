@@ -8,6 +8,44 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.cameraTitle = "Capture Photo";
 
+    // ============ PROMOTER SELECTION (persists in localStorage) ============
+
+    $scope.promoters            = [];
+    $scope.selectedPromoterName = localStorage.getItem('tb_promoter_name') || '';
+    $scope.promoterLoading      = false;
+    $scope.showPromoterPanel    = false;
+    $scope.promoterSearch       = '';
+
+    function fetchPromoters() {
+        $scope.promoterLoading = true;
+        $http.post('./api/Mater/sp', JSON.stringify({
+            "SysID": "USE [phvtechc_tb]; SELECT * FROM [dbo].[tb_promoters] ORDER BY name ASC"
+        })).then(function (res) {
+            $scope.promoters       = res.data;
+            $scope.promoterLoading = false;
+        }, function () { $scope.promoterLoading = false; });
+    }
+
+    $scope.openPromoterPanel = function () {
+        $scope.promoterSearch   = '';
+        $scope.showPromoterPanel = true;
+        fetchPromoters();
+    };
+
+    $scope.closePromoterPanel      = function () { $scope.showPromoterPanel = false; };
+    $scope.closePromoterPanelOutside = function () { $scope.showPromoterPanel = false; };
+
+    $scope.selectPromoter = function (p) {
+        localStorage.setItem('tb_promoter_name', p.name);
+        $scope.selectedPromoterName = p.name;
+        $scope.showPromoterPanel    = false;
+    };
+
+    // Open promoter panel on first load if none saved
+    if (!$scope.selectedPromoterName) {
+        $timeout(function () { $scope.openPromoterPanel(); }, 400);
+    }
+
     // ============ OUTLET / SHOP SELECTION ============
 
     $scope.outlets = [];
@@ -87,6 +125,8 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         $scope.selectedOutlet = null;
         $scope.live_location = "";
         $scope.competitor_text = "";
+        $scope.promoter_comments = "";
+        // Note: selectedPromoterName intentionally not cleared — persists across visits
 
         $scope.boardPreview = "";
         $scope.rackBeforePreview = "";
@@ -143,14 +183,18 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.data_saveing = 0;
     $scope.save = function () {
+        if (!$scope.selectedPromoterName) { $scope.openPromoterPanel(); return; }
+
         $scope.validationErrors = [];
         if (!$scope.selectedOutletCode)  $scope.validationErrors.push('Shop (select from the outlet list)');
         if (!$scope.selFileBoard)        $scope.validationErrors.push('Shop Name Board Picture');
         if (!$scope.live_location)       $scope.validationErrors.push('Live Location');
         if (!$scope.selFileRackBefore)   $scope.validationErrors.push('Shop Product Rack Before Picture');
         if (!$scope.selFileRackAfter)    $scope.validationErrors.push('Shop Product Rack After Picture');
-        if (!$scope.selFileSignature)    $scope.validationErrors.push('Shop Owner Signature Picture');
-        if (!$scope.selFileSelfie)       $scope.validationErrors.push('Selfie with Shop');
+        if (!$scope.selFileSignature)      $scope.validationErrors.push('Shop Owner Signature Picture');
+        if (!$scope.selFileSelfie)         $scope.validationErrors.push('Selfie with Shop');
+        if (!$scope.selFileRackFonterra)   $scope.validationErrors.push('Upload Rack Image (Fonterra)');
+        if (!$scope.selFileCompetitorRack) $scope.validationErrors.push('Capture Rack Image (Competitor)');
         if ($scope.validationErrors.length > 0) return;
 
         if (Number($scope.data_saveing) !== 0) return;
@@ -167,8 +211,10 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
                 + lat                            + "','"
                 + lng                            + "','"
                 + $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ss') + "','"
-                + ($scope.competitor_text || '') + "','"
-                + checklist                      + "'"
+                + ($scope.competitor_text  || '') + "','"
+                + checklist                       + "','"
+                + ($scope.promoter_comments   || '') + "','"
+                + ($scope.selectedPromoterName || '') + "'"
         };
 
         $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (responsea) {

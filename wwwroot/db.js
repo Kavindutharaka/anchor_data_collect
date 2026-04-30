@@ -56,4 +56,52 @@ app.controller('HomeCtrl', function ($scope, $http, $filter) {
         $scope.img_url = "./img/" + fileName;
     };
 
+    $scope.downloadCSV = function () {
+        if (!$scope.reg_lst || !$scope.reg_lst.length) return;
+
+        var cols = [
+            'SysID', 'Promoter Name', 'Outlet Code', 'Shop Name', 'Town', 'Owner Contact',
+            'Date', 'Latitude', 'Longitude',
+            'Product Checklist', 'Competitor Text', 'Promoter Comments',
+            'Board Image', 'Rack Before Image', 'Rack After Image',
+            'Fonterra Rack Image', 'Competitor Rack Image',
+            'Signature Image', 'Selfie Image'
+        ];
+
+        var rows = $scope.reg_lst.map(function (r) {
+            return [
+                r.SysID            || '',
+                r.promoter_name    || '',
+                r.outlet_code      || '',
+                r.shop_name        || '',
+                r.town             || '',
+                r.owner_contact    || '',
+                r.created_dt       || '',
+                r.lat              || '',
+                r.lng              || '',
+                r.product_checklist  || '',
+                r.competitor_text    || '',
+                r.promoter_comments  || '',
+                r.board_img          || '',
+                r.rack_before_img    || '',
+                r.rack_after_img     || '',
+                r.rack_fonterra_img  || '',
+                r.competitor_rack_img || '',
+                r.signature_img      || '',
+                r.selfie_img         || ''
+            ].map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+        });
+
+        var csv  = cols.map(function (c) { return '"' + c + '"'; }).join(',') + '\n' + rows.join('\n');
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'visits_' + $filter('date')(new Date(), 'yyyyMMdd_HHmm') + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
 });
