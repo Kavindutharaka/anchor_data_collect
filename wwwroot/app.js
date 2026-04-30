@@ -8,42 +8,50 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.cameraTitle = "Capture Photo";
 
-    // ============ PROMOTER SELECTION (persists in localStorage) ============
+    // ============ PROMOTER LOGIN ============
 
-    $scope.promoters            = [];
     $scope.selectedPromoterName = localStorage.getItem('tb_promoter_name') || '';
-    $scope.promoterLoading      = false;
-    $scope.showPromoterPanel    = false;
-    $scope.promoterSearch       = '';
+    $scope.showLoginPanel       = false;
+    $scope.loginPromoId         = '';
+    $scope.loginPassword        = '';
+    $scope.loginError           = '';
+    $scope.loginLoading         = false;
 
-    function fetchPromoters() {
-        $scope.promoterLoading = true;
+    $scope.openLoginPanel = function () {
+        $scope.loginPromoId  = '';
+        $scope.loginPassword = '';
+        $scope.loginError    = '';
+        $scope.showLoginPanel = true;
+    };
+
+    $scope.doLogin = function () {
+        var promoId = ($scope.loginPromoId  || '').trim();
+        var pass    = ($scope.loginPassword || '').trim();
+        if (!promoId || !pass) { $scope.loginError = 'Please enter Promo ID and password.'; return; }
+
+        $scope.loginLoading = true;
+        $scope.loginError   = '';
         $http.post('./api/Mater/sp', JSON.stringify({
-            "SysID": "USE [phvtechc_tb]; SELECT * FROM [dbo].[tb_promoters] ORDER BY name ASC"
+            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_promoter_login] '" + promoId + "','" + pass + "'"
         })).then(function (res) {
-            $scope.promoters       = res.data;
-            $scope.promoterLoading = false;
-        }, function () { $scope.promoterLoading = false; });
-    }
-
-    $scope.openPromoterPanel = function () {
-        $scope.promoterSearch   = '';
-        $scope.showPromoterPanel = true;
-        fetchPromoters();
+            $scope.loginLoading = false;
+            if (res.data && res.data.length > 0 && res.data[0].name) {
+                var name = res.data[0].name;
+                localStorage.setItem('tb_promoter_name', name);
+                $scope.selectedPromoterName = name;
+                $scope.showLoginPanel = false;
+            } else {
+                $scope.loginError = 'Invalid Promo ID or password. Please try again.';
+            }
+        }, function () {
+            $scope.loginLoading = false;
+            $scope.loginError   = 'Login failed. Please try again.';
+        });
     };
 
-    $scope.closePromoterPanel      = function () { $scope.showPromoterPanel = false; };
-    $scope.closePromoterPanelOutside = function () { $scope.showPromoterPanel = false; };
-
-    $scope.selectPromoter = function (p) {
-        localStorage.setItem('tb_promoter_name', p.name);
-        $scope.selectedPromoterName = p.name;
-        $scope.showPromoterPanel    = false;
-    };
-
-    // Open promoter panel on first load if none saved
+    // Show login on first load if no promoter saved
     if (!$scope.selectedPromoterName) {
-        $timeout(function () { $scope.openPromoterPanel(); }, 400);
+        $timeout(function () { $scope.openLoginPanel(); }, 400);
     }
 
     // ============ OUTLET / SHOP SELECTION ============
@@ -86,6 +94,9 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
     $scope.fonterraProducts = [];
     $scope.productsLoading = false;
 
+    $scope.orderProducts    = [];
+    $scope.promotedProducts = [];
+
     function fetchProducts() {
         $scope.productsLoading = true;
         $http.post('./api/Mater/sp', JSON.stringify({
@@ -93,6 +104,12 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         })).then(function (res) {
             $scope.fonterraProducts = res.data.map(function (p) {
                 return { SysID: p.SysID, product_name: p.product_name, checked: false };
+            });
+            $scope.orderProducts = res.data.map(function (p) {
+                return { SysID: p.SysID, product_name: p.product_name, qty: null };
+            });
+            $scope.promotedProducts = res.data.map(function (p) {
+                return { SysID: p.SysID, product_name: p.product_name, promoted: false };
             });
             $scope.productsLoading = false;
         }, function () { $scope.productsLoading = false; });
@@ -150,7 +167,9 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         $scope.fileExRackAfter = "";
         $scope.fileExSignature = "";
 
-        angular.forEach($scope.fonterraProducts, function (p) { p.checked = false; });
+        angular.forEach($scope.fonterraProducts,  function (p) { p.checked  = false; });
+        angular.forEach($scope.orderProducts,     function (p) { p.qty      = null;  });
+        angular.forEach($scope.promotedProducts,  function (p) { p.promoted = false; });
 
         $scope.validationErrors = [];
     };
@@ -183,14 +202,14 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.data_saveing = 0;
     $scope.save = function () {
-        if (!$scope.selectedPromoterName) { $scope.openPromoterPanel(); return; }
+        if (!$scope.selectedPromoterName) { $scope.openLoginPanel(); return; }
 
         $scope.validationErrors = [];
-        if (!$scope.selectedOutletCode)  $scope.validationErrors.push('Shop (select from the outlet list)');
-        if (!$scope.selFileBoard)        $scope.validationErrors.push('Shop Name Board Picture');
-        if (!$scope.live_location)       $scope.validationErrors.push('Live Location');
-        if (!$scope.selFileRackBefore)   $scope.validationErrors.push('Shop Product Rack Before Picture');
-        if (!$scope.selFileRackAfter)    $scope.validationErrors.push('Shop Product Rack After Picture');
+        if (!$scope.selectedOutletCode)    $scope.validationErrors.push('Shop (select from the outlet list)');
+        if (!$scope.selFileBoard)          $scope.validationErrors.push('Shop Name Board Picture');
+        if (!$scope.live_location)         $scope.validationErrors.push('Live Location');
+        if (!$scope.selFileRackBefore)     $scope.validationErrors.push('Shop Product Rack Before Picture');
+        if (!$scope.selFileRackAfter)      $scope.validationErrors.push('Shop Product Rack After Picture');
         if (!$scope.selFileSignature)      $scope.validationErrors.push('Shop Owner Signature Picture');
         if (!$scope.selFileSelfie)         $scope.validationErrors.push('Selfie with Shop');
         if (!$scope.selFileRackFonterra)   $scope.validationErrors.push('Upload Rack Image (Fonterra)');
@@ -205,16 +224,28 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
             .map(function (p) { return p.product_name; })
             .join(',');
 
+        var newOrders = $scope.orderProducts
+            .filter(function (p) { return p.qty && Number(p.qty) > 0; })
+            .map(function (p) { return p.product_name + ':' + p.qty; })
+            .join('|');
+
+        var promotedList = $scope.promotedProducts
+            .filter(function (p) { return p.promoted; })
+            .map(function (p) { return p.product_name; })
+            .join(',');
+
         var objs = {
             "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_shop_visit_call] '"
-                + $scope.selectedOutletCode      + "','"
-                + lat                            + "','"
-                + lng                            + "','"
+                + $scope.selectedOutletCode       + "','"
+                + lat                             + "','"
+                + lng                             + "','"
                 + $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ss') + "','"
-                + ($scope.competitor_text  || '') + "','"
-                + checklist                       + "','"
-                + ($scope.promoter_comments   || '') + "','"
-                + ($scope.selectedPromoterName || '') + "'"
+                + ($scope.competitor_text   || '') + "','"
+                + checklist                        + "','"
+                + ($scope.promoter_comments || '') + "','"
+                + ($scope.selectedPromoterName || '') + "','"
+                + newOrders                        + "','"
+                + promotedList                     + "'"
         };
 
         $http.post('./api/Mater/sp', JSON.stringify(objs)).then(function (responsea) {

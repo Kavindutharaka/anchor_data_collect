@@ -3,13 +3,15 @@ app.controller('ProCtrl', function ($scope, $http, $filter) {
 
     // ============ PROMOTER MANAGEMENT ============
 
-    $scope.promoters = [];
-    $scope.newName   = '';
-    $scope.newPhone  = '';
-    $scope.newEmpId  = '';
-    $scope.errorMsg  = '';
-    $scope.loading   = false;
-    $scope.saving    = false;
+    $scope.promoters   = [];
+    $scope.newName     = '';
+    $scope.newPhone    = '';
+    $scope.newEmpId    = '';
+    $scope.newPromoId  = '';
+    $scope.newPassword = '';
+    $scope.errorMsg    = '';
+    $scope.loading     = false;
+    $scope.saving      = false;
 
     function loadPromoters() {
         $scope.loading = true;
@@ -24,23 +26,29 @@ app.controller('ProCtrl', function ($scope, $http, $filter) {
     loadPromoters();
 
     $scope.addPromoter = function () {
-        var name  = ($scope.newName   || '').trim();
-        var phone = ($scope.newPhone  || '').trim();
-        var emp   = ($scope.newEmpId  || '').trim();
+        var name    = ($scope.newName     || '').trim();
+        var phone   = ($scope.newPhone    || '').trim();
+        var emp     = ($scope.newEmpId    || '').trim();
+        var promoId = ($scope.newPromoId  || '').trim();
+        var pass    = ($scope.newPassword || '').trim();
         $scope.errorMsg = '';
 
-        if (!name)  { $scope.errorMsg = 'Please enter promoter name.';    return; }
-        if (!phone) { $scope.errorMsg = 'Please enter phone number.';     return; }
-        if (!emp)   { $scope.errorMsg = 'Please enter employee ID.';      return; }
+        if (!name)    { $scope.errorMsg = 'Please enter promoter name.';    return; }
+        if (!phone)   { $scope.errorMsg = 'Please enter phone number.';     return; }
+        if (!emp)     { $scope.errorMsg = 'Please enter employee ID.';      return; }
+        if (!promoId) { $scope.errorMsg = 'Please enter promo ID.';         return; }
+        if (!pass)    { $scope.errorMsg = 'Please enter a password.';       return; }
 
         $scope.saving = true;
         $http.post('./api/Mater/sp', JSON.stringify({
-            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_promoter_save] '" + name + "','" + phone + "','" + emp + "'"
+            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_promoter_save] '" + name + "','" + phone + "','" + emp + "','" + promoId + "','" + pass + "'"
         })).then(function () {
-            $scope.newName  = '';
-            $scope.newPhone = '';
-            $scope.newEmpId = '';
-            $scope.saving   = false;
+            $scope.newName     = '';
+            $scope.newPhone    = '';
+            $scope.newEmpId    = '';
+            $scope.newPromoId  = '';
+            $scope.newPassword = '';
+            $scope.saving      = false;
             loadPromoters();
         }, function () {
             $scope.errorMsg = 'Failed to save. Please try again.';

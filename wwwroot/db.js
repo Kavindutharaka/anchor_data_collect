@@ -56,6 +56,31 @@ app.controller('HomeCtrl', function ($scope, $http, $filter) {
         $scope.img_url = "./img/" + fileName;
     };
 
+    $scope.detail_outlet   = '';
+    $scope.detail_orders   = [];
+    $scope.detail_promoted = [];
+    $scope.detail_view = function (ee) {
+        $scope.detail_outlet = ee.outlet_code;
+
+        // Parse new_orders: "Product A:3|Product B:1"
+        $scope.detail_orders = [];
+        if (ee.new_orders) {
+            var parts = ee.new_orders.split('|');
+            for (var i = 0; i < parts.length; i++) {
+                var kv = parts[i].split(':');
+                if (kv.length >= 2) {
+                    $scope.detail_orders.push({ product: kv[0].trim(), qty: kv.slice(1).join(':').trim() });
+                }
+            }
+        }
+
+        // Parse promoted_products: "Product A,Product B"
+        $scope.detail_promoted = [];
+        if (ee.promoted_products) {
+            $scope.detail_promoted = ee.promoted_products.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        }
+    };
+
     $scope.downloadCSV = function () {
         if (!$scope.reg_lst || !$scope.reg_lst.length) return;
 
@@ -63,6 +88,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter) {
             'SysID', 'Promoter Name', 'Outlet Code', 'Shop Name', 'Town', 'Owner Contact',
             'Date', 'Latitude', 'Longitude',
             'Product Checklist', 'Competitor Text', 'Promoter Comments',
+            'New Orders', 'Promoted Products',
             'Board Image', 'Rack Before Image', 'Rack After Image',
             'Fonterra Rack Image', 'Competitor Rack Image',
             'Signature Image', 'Selfie Image'
@@ -70,25 +96,27 @@ app.controller('HomeCtrl', function ($scope, $http, $filter) {
 
         var rows = $scope.reg_lst.map(function (r) {
             return [
-                r.SysID            || '',
-                r.promoter_name    || '',
-                r.outlet_code      || '',
-                r.shop_name        || '',
-                r.town             || '',
-                r.owner_contact    || '',
-                r.created_dt       || '',
-                r.lat              || '',
-                r.lng              || '',
-                r.product_checklist  || '',
-                r.competitor_text    || '',
-                r.promoter_comments  || '',
-                r.board_img          || '',
-                r.rack_before_img    || '',
-                r.rack_after_img     || '',
-                r.rack_fonterra_img  || '',
+                r.SysID               || '',
+                r.promoter_name       || '',
+                r.outlet_code         || '',
+                r.shop_name           || '',
+                r.town                || '',
+                r.owner_contact       || '',
+                r.created_dt          || '',
+                r.lat                 || '',
+                r.lng                 || '',
+                r.product_checklist   || '',
+                r.competitor_text     || '',
+                r.promoter_comments   || '',
+                r.new_orders          || '',
+                r.promoted_products   || '',
+                r.board_img           || '',
+                r.rack_before_img     || '',
+                r.rack_after_img      || '',
+                r.rack_fonterra_img   || '',
                 r.competitor_rack_img || '',
-                r.signature_img      || '',
-                r.selfie_img         || ''
+                r.signature_img       || '',
+                r.selfie_img          || ''
             ].map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
         });
 

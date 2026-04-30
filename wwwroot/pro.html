@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="app.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="pro.js?t=29042026"></script>
+    <script type="text/javascript" src="pro.js?t=30042026"></script>
 
     <style>
         .pro-card {
@@ -131,7 +131,15 @@
             </div>
             <div class="add-field">
                 <label>Employee ID *</label>
-                <input type="text" ng-model="newEmpId" placeholder="e.g. EMP001" maxlength="50"
+                <input type="text" ng-model="newEmpId" placeholder="e.g. EMP001" maxlength="50" />
+            </div>
+            <div class="add-field">
+                <label>Promo ID * <span style="font-weight:400;color:var(--text-secondary);">(used to login)</span></label>
+                <input type="text" ng-model="newPromoId" placeholder="e.g. PRO001" maxlength="50" />
+            </div>
+            <div class="add-field">
+                <label>Password *</label>
+                <input type="password" ng-model="newPassword" placeholder="Set login password" maxlength="100"
                        ng-keyup="$event.keyCode == 13 && addPromoter()" />
             </div>
             <div class="error-msg" ng-if="errorMsg">{{errorMsg}}</div>
@@ -149,7 +157,7 @@
                 <span class="pro-dot"></span>
                 <div class="pro-info">
                     <div class="pro-name">{{p.name}}</div>
-                    <div class="pro-sub">{{p.phone}} &middot; {{p.emp_id}}</div>
+                    <div class="pro-sub">{{p.phone}} &middot; {{p.emp_id}} &middot; ID: {{p.promo_id}}</div>
                 </div>
             </div>
             <div class="pro-card-btns">

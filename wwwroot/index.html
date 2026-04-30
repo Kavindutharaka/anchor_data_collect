@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="sup/animate.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="app.js?t=29042026"></script>
+    <script type="text/javascript" src="app.js?t=30042026"></script>
 </head>
 <body ng-app="PHVApp" ng-cloak ng-controller="HomeCtrl">
 
@@ -29,32 +29,27 @@
         </div>
     </div>
 
-    <!-- Promoter Panel Overlay -->
-    <div class="rc-panel-overlay" ng-show="showPromoterPanel" ng-click="closePromoterPanelOutside()">
+    <!-- Login Overlay -->
+    <div class="rc-panel-overlay" ng-show="showLoginPanel">
         <div class="rc-panel" ng-click="$event.stopPropagation()">
-            <div class="rc-panel-title">Select Promoter</div>
-            <div class="rc-panel-sub">Select your name. This will be saved for future visits.</div>
-            <input type="text" ng-model="promoterSearch" placeholder="Search promoter name..."
-                   style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;margin-bottom:10px;" />
-            <div ng-if="promoterLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">Loading...</div>
-            <div class="rc-saved-list" ng-if="!promoterLoading && promoters.length > 0">
-                <div class="rc-saved-item" ng-repeat="p in promoters | filter:promoterSearch"
-                     ng-class="{active: p.name === selectedPromoterName}"
-                     ng-click="selectPromoter(p)">
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span class="rc-code-txt">{{p.name}}</span>
-                            <span class="rc-active-tag" ng-if="p.name === selectedPromoterName">&#10003; Active</span>
-                        </div>
-                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">{{p.emp_id}} &middot; {{p.phone}}</div>
-                    </div>
-                </div>
+            <div class="rc-panel-title">Promoter Login</div>
+            <div class="rc-panel-sub">Enter your Promo ID and password to continue.</div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;">Promo ID</label>
+                <input type="text" ng-model="loginPromoId" placeholder="e.g. PRO001"
+                       style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;" />
             </div>
-            <div ng-if="!promoterLoading && promoters.length === 0"
-                 style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
-                No promoters registered. Contact your administrator.
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;">Password</label>
+                <input type="password" ng-model="loginPassword" placeholder="Enter password"
+                       ng-keyup="$event.keyCode == 13 && doLogin()"
+                       style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;" />
             </div>
-            <button type="button" class="rc-panel-close" ng-click="closePromoterPanel()" ng-if="selectedPromoterName">Cancel</button>
+            <div ng-if="loginError" style="color:var(--accent-red);font-size:12px;margin-bottom:10px;">{{loginError}}</div>
+            <button type="button" class="rc-panel-close" style="background:var(--accent);color:#fff;border:none;width:100%;padding:12px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:0;"
+                    ng-click="doLogin()" ng-disabled="loginLoading">
+                {{loginLoading ? 'Checking...' : 'Login'}}
+            </button>
         </div>
     </div>
 
@@ -99,11 +94,11 @@
         </div>
 
         <!-- Promoter Badge -->
-        <div class="root-code-badge" ng-click="openPromoterPanel()" style="cursor:pointer;margin-bottom:4px;">
+        <div class="root-code-badge" ng-click="openLoginPanel()" style="cursor:pointer;margin-bottom:4px;">
             <span class="badge-inner">
                 <span class="badge-dot" ng-class="{empty: !selectedPromoterName}"></span>
                 <span ng-if="selectedPromoterName">&#128100; {{selectedPromoterName}}</span>
-                <span ng-if="!selectedPromoterName" style="color:var(--accent-red);">Tap to Select Promoter</span>
+                <span ng-if="!selectedPromoterName" style="color:var(--accent-red);">Tap to Login</span>
             </span>
         </div>
 
@@ -202,6 +197,32 @@
         </div>
         <div ng-show="competitorRackPreview" class="img-preview">
             <img ng-src="{{competitorRackPreview}}" />
+        </div>
+
+        <!-- New Orders -->
+        <div class="field-group">
+            <label class="field-label">New Orders</label>
+            <div ng-if="productsLoading" style="color:var(--text-secondary);font-size:13px;padding:8px 0;">Loading products...</div>
+            <div ng-repeat="p in orderProducts"
+                 style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+                <span style="flex:1;font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
+                <input type="number" min="0" ng-model="p.qty" placeholder="Qty"
+                       style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;text-align:center;" />
+            </div>
+        </div>
+
+        <!-- Promoted Products -->
+        <div class="field-group">
+            <label class="field-label">Promoted Products</label>
+            <div ng-if="productsLoading" style="color:var(--text-secondary);font-size:13px;padding:8px 0;">Loading products...</div>
+            <div ng-repeat="p in promotedProducts"
+                 style="padding:10px 0;border-bottom:1px solid var(--border);">
+                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
+                    <input type="checkbox" ng-model="p.promoted"
+                           style="width:20px;height:20px;cursor:pointer;flex-shrink:0;" />
+                    <span style="font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
+                </label>
+            </div>
         </div>
 
         <!-- Owner Signature — camera only -->
