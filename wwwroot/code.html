@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="app.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="code.js?t=29042026"></script>
+    <script type="text/javascript" src="code.js?t=38565256b"></script>
 
     <style>
         .code-card {
@@ -163,53 +163,12 @@
 
         <a href="index.html" class="nav-back">&#8592; Back to Form</a>
 
-        <!-- ==================== SECTION 1: SHOP REGISTRATION ==================== -->
+        <!-- ==================== FONTERRA PRODUCTS ==================== -->
         <div class="page-header" style="text-align:left;padding-top:0;">
-            <h1 style="font-size:18px;">Shop Registration</h1>
+            <h1 style="font-size:18px;">Fonterra Products</h1>
         </div>
 
-        <div class="add-code-box">
-            <div class="box-title">Register New Shop</div>
-            <div class="add-field">
-                <label>Shop Name *</label>
-                <input type="text" ng-model="newShopName" placeholder="e.g. Rathna PH" maxlength="100" />
-            </div>
-            <div class="add-field">
-                <label>Town *</label>
-                <input type="text" ng-model="newShopTown" placeholder="e.g. Kantale" maxlength="100" />
-            </div>
-            <div class="add-field">
-                <label>Owner Contact *</label>
-                <input type="tel" ng-model="newShopContact" placeholder="e.g. 0771234567" maxlength="20"
-                       ng-keyup="$event.keyCode == 13 && addShop()" />
-            </div>
-            <div class="error-msg" ng-if="shopErrorMsg">{{shopErrorMsg}}</div>
-            <button type="button" class="btn-add-code" ng-click="addShop()" ng-disabled="shopSaving">
-                {{shopSaving ? 'Registering...' : 'Register Shop'}}
-            </button>
-        </div>
-
-        <div class="section-title">Registered Shops ({{shops.length}})</div>
-        <div class="loading-txt" ng-if="shopsLoading">Loading...</div>
-        <div ng-if="!shopsLoading && shops.length === 0" class="empty-state">
-            No shops registered yet.
-        </div>
-        <div class="code-card" ng-repeat="s in shops">
-            <div class="code-card-left">
-                <span class="code-dot blue"></span>
-                <div class="code-info">
-                    <div class="code-text">{{s.outlet_code}}</div>
-                    <div class="code-desc">{{s.shop_name}} &middot; {{s.town}} &middot; {{s.owner_contact}}</div>
-                </div>
-            </div>
-            <div class="code-card-btns">
-                <button type="button" class="btn-del-code" ng-click="deleteShop(s)">&#10005; Delete</button>
-            </div>
-        </div>
-
-        <!-- ==================== SECTION 2: FONTERRA PRODUCTS ==================== -->
-        <div class="page-section">
-            <div class="page-section-title">Fonterra Products</div>
+        <div>
 
             <div class="add-code-box">
                 <div class="box-title">Add Product to Checklist</div>
@@ -241,7 +200,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
 </body>

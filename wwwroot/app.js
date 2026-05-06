@@ -56,46 +56,103 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     // ============ OUTLET / SHOP SELECTION ============
 
-    $scope.outlets = [];
+    $scope.outlets          = [];
     $scope.selectedOutletCode = '';
-    $scope.selectedOutlet = null;
-    $scope.outletLoading = false;
-    $scope.showOutletPanel = false;
+    $scope.selectedOutlet   = null;
+    $scope.outletLoading    = false;
+    $scope.showOutletPanel  = false;
+    $scope.outletSearch     = '';
 
     function fetchOutlets() {
         $scope.outletLoading = true;
         $http.post('./api/Mater/sp', JSON.stringify({
             "SysID": "USE [phvtechc_tb]; SELECT * FROM [dbo].[tb_outlets] ORDER BY outlet_code ASC"
         })).then(function (res) {
-            $scope.outlets = res.data;
+            $scope.outlets       = res.data;
             $scope.outletLoading = false;
         }, function () { $scope.outletLoading = false; });
     }
 
     $scope.openOutletPanel = function () {
+        $scope.outletSearch    = '';
         $scope.showOutletPanel = true;
         fetchOutlets();
     };
 
-    $scope.closeOutletPanel = function () { $scope.showOutletPanel = false; };
+    $scope.closeOutletPanel        = function () { $scope.showOutletPanel = false; };
     $scope.closeOutletPanelOutside = function () { $scope.showOutletPanel = false; };
 
     $scope.selectOutlet = function (outlet) {
         $scope.selectedOutletCode = outlet.outlet_code;
-        $scope.selectedOutlet = outlet;
-        $scope.showOutletPanel = false;
+        $scope.selectedOutlet     = outlet;
+        $scope.showOutletPanel    = false;
     };
 
-    // Open outlet panel on load so promoter picks shop first
-    $timeout(function () { $scope.openOutletPanel(); }, 400);
+    // ============ NEW SHOP REGISTRATION ============
 
-    // ============ FONTERRA PRODUCTS CHECKLIST ============
+    $scope.showNewShopPanel = false;
+    $scope.newShopName      = '';
+    $scope.newShopTown      = '';
+    $scope.newShopContact   = '';
+    $scope.newShopError     = '';
+    $scope.newShopSaving    = false;
+
+    $scope.openNewShopPanel = function () {
+        $scope.newShopName    = '';
+        $scope.newShopTown    = '';
+        $scope.newShopContact = '';
+        $scope.newShopError   = '';
+        $scope.showNewShopPanel = true;
+    };
+
+    $scope.closeNewShopPanel = function () { $scope.showNewShopPanel = false; };
+
+    $scope.saveNewShop = function () {
+        var name    = ($scope.newShopName    || '').trim();
+        var town    = ($scope.newShopTown    || '').trim();
+        var contact = ($scope.newShopContact || '').trim();
+        $scope.newShopError = '';
+
+        if (!name) { $scope.newShopError = 'Shop name is required.'; return; }
+        if (!town) { $scope.newShopError = 'Town is required.';      return; }
+
+        $scope.newShopSaving = true;
+        $http.post('./api/Mater/sp', JSON.stringify({
+            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_outlet_save] '" + name + "','" + town + "','" + contact + "'"
+        })).then(function (res) {
+            $scope.newShopSaving    = false;
+            $scope.showNewShopPanel = false;
+            if (res.data && res.data.length > 0 && res.data[0].outlet_code) {
+                var code = res.data[0].outlet_code;
+                $scope.selectedOutletCode = code;
+                $scope.selectedOutlet = {
+                    outlet_code:   code,
+                    shop_name:     name,
+                    town:          town,
+                    owner_contact: contact
+                };
+            }
+            fetchOutlets(); // refresh list in background
+        }, function () {
+            $scope.newShopSaving = false;
+            $scope.newShopError  = 'Failed to save. Please try again.';
+        });
+    };
+
+    // ============ PRODUCTS — FONTERRA CHECKLIST / NEW ORDERS / PROMOTED ============
 
     $scope.fonterraProducts = [];
-    $scope.productsLoading = false;
-
     $scope.orderProducts    = [];
     $scope.promotedProducts = [];
+    $scope.productsLoading  = false;
+
+    // Modal states
+    $scope.showFonterraModal = false;
+    $scope.fonterraSearch    = '';
+    $scope.showOrdersModal   = false;
+    $scope.ordersSearch      = '';
+    $scope.showPromotedModal = false;
+    $scope.promotedSearch    = '';
 
     function fetchProducts() {
         $scope.productsLoading = true;
@@ -116,6 +173,157 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
     }
 
     fetchProducts();
+
+    // Counts
+    $scope.fonterraSelectedCount = function () {
+        return $scope.fonterraProducts.filter(function (p) { return p.checked; }).length;
+    };
+    $scope.ordersCount = function () {
+        return $scope.orderProducts.filter(function (p) { return p.qty && Number(p.qty) > 0; }).length;
+    };
+    $scope.promotedCount = function () {
+        return $scope.promotedProducts.filter(function (p) { return p.promoted; }).length;
+    };
+
+    // Open / Close
+    $scope.openFonterraModal  = function () { $scope.fonterraSearch = ''; $scope.showFonterraModal = true; };
+    $scope.closeFonterraModal = function () { $scope.showFonterraModal = false; };
+
+    $scope.openOrdersModal  = function () { $scope.ordersSearch = ''; $scope.showOrdersModal = true; };
+    $scope.closeOrdersModal = function () { $scope.showOrdersModal = false; };
+
+    $scope.openPromotedModal  = function () { $scope.promotedSearch = ''; $scope.showPromotedModal = true; };
+    $scope.closePromotedModal = function () { $scope.showPromotedModal = false; };
+
+    // Done orders: close modal + auto-download receipt
+    $scope.doneOrders = function () {
+        $scope.showOrdersModal = false;
+        $scope.generateReceipt();
+    };
+
+    // ============ RECEIPT GENERATION (Canvas → PNG download) ============
+
+    $scope.generateReceipt = function () {
+        var orders = $scope.orderProducts.filter(function (p) { return p.qty && Number(p.qty) > 0; });
+        if (!orders.length) return;
+
+        var shopName  = $scope.selectedOutlet ? $scope.selectedOutlet.shop_name : ($scope.selectedOutletCode || 'N/A');
+        var town      = $scope.selectedOutlet ? ($scope.selectedOutlet.town || '') : '';
+        var promoter  = $scope.selectedPromoterName || '';
+        var dateStr   = $filter('date')(new Date(), 'yyyy/MM/dd HH:mm');
+
+        var width    = 680;
+        var padX     = 36;
+        var headerH  = 82;
+        var rowH     = 44;
+        var tableHdr = 38;
+        var footerH  = 56;
+        var height   = headerH + 94 + tableHdr + (orders.length * rowH) + footerH + 16;
+
+        var canvas = document.createElement('canvas');
+        canvas.width  = width;
+        canvas.height = height;
+        var ctx = canvas.getContext('2d');
+
+        // White background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+
+        // Header bar
+        ctx.fillStyle = '#1a56db';
+        ctx.fillRect(0, 0, width, headerH);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText('Order Receipt', padX, 40);
+
+        // Info section
+        var iy = headerH + 20;
+        ctx.fillStyle = '#1e3a5f';
+        ctx.font = 'bold 17px Arial';
+        var shopLine = shopName + (town ? '   |   ' + town : '');
+        ctx.fillText(shopLine, padX, iy);
+
+        iy += 26;
+        ctx.fillStyle = '#4b5563';
+        ctx.font = '13px Arial';
+        ctx.fillText('Promoter: ' + promoter, padX, iy);
+
+        iy += 20;
+        ctx.fillText('Date: ' + dateStr, padX, iy);
+
+        iy += 22;
+        // Divider
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padX, iy);
+        ctx.lineTo(width - padX, iy);
+        ctx.stroke();
+        iy += 2;
+
+        // Table header
+        ctx.fillStyle = '#1a56db';
+        ctx.fillRect(padX, iy, width - padX * 2, tableHdr);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 13px Arial';
+        ctx.fillText('Product', padX + 14, iy + 25);
+        ctx.fillText('Qty', width - padX - 52, iy + 25);
+        iy += tableHdr;
+
+        // Rows
+        orders.forEach(function (o, i) {
+            var rowY = iy + i * rowH;
+            ctx.fillStyle = i % 2 === 0 ? '#f8fafc' : '#ffffff';
+            ctx.fillRect(padX, rowY, width - padX * 2, rowH);
+
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(padX, rowY + rowH);
+            ctx.lineTo(width - padX, rowY + rowH);
+            ctx.stroke();
+
+            // Truncate long product names
+            ctx.fillStyle = '#111827';
+            ctx.font = '14px Arial';
+            var maxW = width - padX * 2 - 80;
+            var pName = o.product_name;
+            while (ctx.measureText(pName).width > maxW && pName.length > 3) {
+                pName = pName.slice(0, -1);
+            }
+            if (pName !== o.product_name) pName += '…';
+            ctx.fillText(pName, padX + 14, rowY + rowH / 2 + 6);
+
+            ctx.fillStyle = '#1a56db';
+            ctx.font = 'bold 15px Arial';
+            ctx.fillText(String(o.qty), width - padX - 44, rowY + rowH / 2 + 6);
+        });
+
+        // Footer
+        var footerY = iy + orders.length * rowH + 14;
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padX, footerY);
+        ctx.lineTo(width - padX, footerY);
+        ctx.stroke();
+        footerY += 22;
+        ctx.fillStyle = '#374151';
+        ctx.font = '13px Arial';
+        ctx.fillText('Total: ' + orders.length + ' product(s)', padX, footerY);
+
+        // Download as PNG
+        canvas.toBlob(function (blob) {
+            var url = URL.createObjectURL(blob);
+            var a   = document.createElement('a');
+            a.href     = url;
+            a.download = 'receipt_' + ($scope.selectedOutletCode || 'order') + '_' + $filter('date')(new Date(), 'yyyyMMdd_HHmm') + '.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 'image/png');
+    };
 
     // ============ GPS ============
 
@@ -139,33 +347,32 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
     $scope.cls = function () {
         $scope.selectedOutletCode = '';
-        $scope.selectedOutlet = null;
-        $scope.live_location = "";
-        $scope.competitor_text = "";
-        $scope.promoter_comments = "";
-        // Note: selectedPromoterName intentionally not cleared — persists across visits
+        $scope.selectedOutlet     = null;
+        $scope.live_location      = "";
+        $scope.competitor_text    = "";
+        $scope.promoter_comments  = "";
 
-        $scope.boardPreview = "";
-        $scope.rackBeforePreview = "";
-        $scope.rackAfterPreview = "";
-        $scope.signaturePreview = "";
-        $scope.selfiePreview = "";
-        $scope.selfieTimestamp = "";
-        $scope.rackFonterraPreview = "";
+        $scope.boardPreview         = "";
+        $scope.rackBeforePreview    = "";
+        $scope.rackAfterPreview     = "";
+        $scope.signaturePreview     = "";
+        $scope.selfiePreview        = "";
+        $scope.selfieTimestamp      = "";
+        $scope.rackFonterraPreview  = "";
         $scope.competitorRackPreview = "";
 
-        $scope.selFileBoard = null;
-        $scope.selFileRackBefore = null;
-        $scope.selFileRackAfter = null;
-        $scope.selFileSignature = null;
-        $scope.selFileSelfie = null;
-        $scope.selFileRackFonterra = null;
+        $scope.selFileBoard          = null;
+        $scope.selFileRackBefore     = null;
+        $scope.selFileRackAfter      = null;
+        $scope.selFileSignature      = null;
+        $scope.selFileSelfie         = null;
+        $scope.selFileRackFonterra   = null;
         $scope.selFileCompetitorRack = null;
 
-        $scope.fileExBoard = "";
+        $scope.fileExBoard      = "";
         $scope.fileExRackBefore = "";
-        $scope.fileExRackAfter = "";
-        $scope.fileExSignature = "";
+        $scope.fileExRackAfter  = "";
+        $scope.fileExSignature  = "";
 
         angular.forEach($scope.fonterraProducts,  function (p) { p.checked  = false; });
         angular.forEach($scope.orderProducts,     function (p) { p.qty      = null;  });
@@ -205,7 +412,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
         if (!$scope.selectedPromoterName) { $scope.openLoginPanel(); return; }
 
         $scope.validationErrors = [];
-        if (!$scope.selectedOutletCode)    $scope.validationErrors.push('Shop (select from the outlet list)');
+        if (!$scope.selectedOutletCode)    $scope.validationErrors.push('Shop (select or register from shop field)');
         if (!$scope.selFileBoard)          $scope.validationErrors.push('Shop Name Board Picture');
         if (!$scope.live_location)         $scope.validationErrors.push('Live Location');
         if (!$scope.selFileRackBefore)     $scope.validationErrors.push('Shop Product Rack Before Picture');
@@ -266,14 +473,14 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
 
             var updateObj = {
                 "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_shop_visit_update_files] "
-                    + id                       + ",'"
-                    + boardFileName            + "','"
-                    + rackBeforeFileName       + "','"
-                    + rackAfterFileName        + "','"
-                    + signatureFileName        + "','"
-                    + selfieFileName           + "','"
-                    + rackFonterraFileName     + "','"
-                    + competitorRackFileName   + "'"
+                    + id                     + ",'"
+                    + boardFileName          + "','"
+                    + rackBeforeFileName     + "','"
+                    + rackAfterFileName      + "','"
+                    + signatureFileName      + "','"
+                    + selfieFileName         + "','"
+                    + rackFonterraFileName   + "','"
+                    + competitorRackFileName + "'"
             };
             $http.post('./api/Mater/sp', JSON.stringify(updateObj));
             $scope.file_up(id);

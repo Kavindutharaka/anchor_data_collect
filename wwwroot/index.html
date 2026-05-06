@@ -13,7 +13,166 @@
     <link rel="stylesheet" href="sup/animate.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="app.js?t=30042026"></script>
+    <script type="text/javascript" src="app.js?t=305246b"></script>
+
+    <style>
+        /* Panel input style shared */
+        .panel-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-input);
+            outline: none;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .panel-input:focus { border-color: var(--accent); }
+
+        /* Action button inside panel */
+        .panel-btn-primary {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 13px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+        .panel-btn-primary:disabled { opacity: 0.6; cursor: default; }
+        .panel-btn-primary.green { background: var(--accent-green); }
+
+        /* Product modal panel */
+        .product-panel {
+            display: flex;
+            flex-direction: column;
+            max-height: 88vh;
+        }
+        .product-list {
+            flex: 1;
+            overflow-y: auto;
+            margin: 0 -4px;
+            padding: 0 4px;
+        }
+        .product-row {
+            padding: 12px 4px;
+            border-bottom: 1px solid var(--border);
+        }
+        .product-row:last-child { border-bottom: none; }
+
+        /* Shop field row */
+        .shop-field-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .shop-field-row .root-code-badge {
+            flex: 1;
+            min-width: 0;
+        }
+        .btn-new-shop {
+            flex-shrink: 0;
+            background: var(--accent-green);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-new-shop:active { opacity: 0.85; }
+
+        /* Selection button (Fonterra, Orders, Promoted) */
+        .btn-select-field {
+            width: 100%;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 13px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .btn-select-field:active { opacity: 0.8; }
+        .btn-select-field .sel-count {
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--accent-green);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 10px;
+        }
+        .btn-select-field .sel-arrow {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Receipt re-download button */
+        .btn-receipt {
+            flex-shrink: 0;
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-receipt:active { opacity: 0.85; }
+
+        /* Orders field row */
+        .orders-field-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .orders-field-row .btn-select-field { flex: 1; }
+
+        /* New shop form */
+        .new-shop-field { margin-bottom: 10px; }
+        .new-shop-field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: block;
+        }
+        .error-inline {
+            color: var(--accent-red);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Order qty input */
+        .qty-input {
+            width: 72px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-input);
+            outline: none;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .qty-input:focus { border-color: var(--accent); }
+    </style>
 </head>
 <body ng-app="PHVApp" ng-cloak ng-controller="HomeCtrl">
 
@@ -29,40 +188,60 @@
         </div>
     </div>
 
-    <!-- Login Overlay -->
+    <!-- ===== LOGIN OVERLAY ===== -->
     <div class="rc-panel-overlay" ng-show="showLoginPanel">
         <div class="rc-panel" ng-click="$event.stopPropagation()">
             <div class="rc-panel-title">Promoter Login</div>
             <div class="rc-panel-sub">Enter your Promo ID and password to continue.</div>
             <div style="margin-bottom:10px;">
                 <label style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;">Promo ID</label>
-                <input type="text" ng-model="loginPromoId" placeholder="e.g. PRO001"
-                       style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;" />
+                <input type="text" class="panel-input" ng-model="loginPromoId" placeholder="e.g. PRO001" />
             </div>
             <div style="margin-bottom:12px;">
                 <label style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;">Password</label>
-                <input type="password" ng-model="loginPassword" placeholder="Enter password"
-                       ng-keyup="$event.keyCode == 13 && doLogin()"
-                       style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;" />
+                <input type="password" class="panel-input" ng-model="loginPassword" placeholder="Enter password"
+                       ng-keyup="$event.keyCode == 13 && doLogin()" />
             </div>
-            <div ng-if="loginError" style="color:var(--accent-red);font-size:12px;margin-bottom:10px;">{{loginError}}</div>
-            <button type="button" class="rc-panel-close" style="background:var(--accent);color:#fff;border:none;width:100%;padding:12px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:0;"
-                    ng-click="doLogin()" ng-disabled="loginLoading">
+            <div class="error-inline" ng-if="loginError">{{loginError}}</div>
+            <button type="button" class="panel-btn-primary" ng-click="doLogin()" ng-disabled="loginLoading">
                 {{loginLoading ? 'Checking...' : 'Login'}}
             </button>
         </div>
     </div>
 
-    <!-- Outlet Panel Overlay -->
+    <!-- ===== NEW SHOP PANEL ===== -->
+    <div class="rc-panel-overlay" ng-show="showNewShopPanel" ng-click="closeNewShopPanel()">
+        <div class="rc-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title">Register New Shop</div>
+            <div class="rc-panel-sub">Shop will be auto-assigned an outlet code.</div>
+            <div class="new-shop-field">
+                <label>Shop Name *</label>
+                <input type="text" class="panel-input" ng-model="newShopName" placeholder="e.g. Rathna PH" maxlength="100" />
+            </div>
+            <div class="new-shop-field">
+                <label>Town *</label>
+                <input type="text" class="panel-input" ng-model="newShopTown" placeholder="e.g. Kantale" maxlength="100" />
+            </div>
+            <div class="new-shop-field">
+                <label>Owner Contact</label>
+                <input type="tel" class="panel-input" ng-model="newShopContact" placeholder="e.g. 0771234567" maxlength="20"
+                       ng-keyup="$event.keyCode == 13 && saveNewShop()" />
+            </div>
+            <div class="error-inline" ng-if="newShopError">{{newShopError}}</div>
+            <button type="button" class="panel-btn-primary green" ng-click="saveNewShop()" ng-disabled="newShopSaving">
+                {{newShopSaving ? 'Registering...' : 'Register & Select Shop'}}
+            </button>
+            <button type="button" class="rc-panel-close" ng-click="closeNewShopPanel()" style="margin-top:8px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ===== OUTLET SELECTION PANEL ===== -->
     <div class="rc-panel-overlay" ng-show="showOutletPanel" ng-click="closeOutletPanelOutside()">
         <div class="rc-panel" ng-click="$event.stopPropagation()">
             <div class="rc-panel-title">Select Shop</div>
             <div class="rc-panel-sub">Select the outlet you are visiting today.</div>
-            <input type="text" ng-model="outletSearch" placeholder="Search shop name..."
-                   style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;box-sizing:border-box;margin-bottom:10px;" />
-            <div ng-if="outletLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">
-                Loading shops...
-            </div>
+            <input type="text" class="panel-input" ng-model="outletSearch" placeholder="Search shop name or code..." />
+            <div ng-if="outletLoading" style="text-align:center;padding:24px 0;color:var(--text-secondary);font-size:14px;">Loading shops...</div>
             <div class="rc-saved-list" ng-if="!outletLoading && outlets.length > 0">
                 <div class="rc-saved-item" ng-repeat="o in outlets | filter:outletSearch"
                      ng-class="{active: o.outlet_code === selectedOutletCode}"
@@ -80,9 +259,93 @@
             </div>
             <div ng-if="!outletLoading && outlets.length === 0"
                  style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
-                No shops registered. Contact your administrator.
+                No shops registered. Use "+ New" to add one.
             </div>
             <button type="button" class="rc-panel-close" ng-click="closeOutletPanel()" ng-if="selectedOutletCode">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ===== FONTERRA PRODUCTS MODAL ===== -->
+    <div class="rc-panel-overlay" ng-show="showFonterraModal" ng-click="closeFonterraModal()">
+        <div class="rc-panel product-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title" style="flex-shrink:0;">Lactalis Product Availability</div>
+            <input type="text" class="panel-input" ng-model="fonterraSearch" placeholder="Search products..."
+                   style="flex-shrink:0;" />
+            <div class="product-list">
+                <div ng-if="productsLoading" style="text-align:center;padding:20px;color:var(--text-secondary);font-size:14px;">Loading...</div>
+                <div class="product-row" ng-repeat="p in fonterraProducts | filter:fonterraSearch">
+                    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
+                        <input type="checkbox" ng-model="p.checked"
+                               style="width:22px;height:22px;cursor:pointer;flex-shrink:0;accent-color:var(--accent-green);" />
+                        <span style="font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
+                    </label>
+                </div>
+                <div ng-if="!productsLoading && fonterraProducts.length === 0"
+                     style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">
+                    No products configured. Contact admin.
+                </div>
+            </div>
+            <button type="button" class="panel-btn-primary green" ng-click="closeFonterraModal()" style="margin-top:10px;flex-shrink:0;">
+                Done
+                <span ng-if="fonterraSelectedCount() > 0"> — {{fonterraSelectedCount()}} selected</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== NEW ORDERS MODAL ===== -->
+    <div class="rc-panel-overlay" ng-show="showOrdersModal" ng-click="closeOrdersModal()">
+        <div class="rc-panel product-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title" style="flex-shrink:0;">New Orders</div>
+            <div class="rc-panel-sub" style="flex-shrink:0;">Enter quantities for products being ordered.</div>
+            <input type="text" class="panel-input" ng-model="ordersSearch" placeholder="Search products..."
+                   style="flex-shrink:0;" />
+            <div class="product-list">
+                <div ng-if="productsLoading" style="text-align:center;padding:20px;color:var(--text-secondary);font-size:14px;">Loading...</div>
+                <div class="product-row" style="display:flex;align-items:center;gap:12px;"
+                     ng-repeat="p in orderProducts | filter:ordersSearch">
+                    <span style="flex:1;font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
+                    <input type="number" class="qty-input" ng-model="p.qty" min="0" placeholder="Qty" />
+                </div>
+                <div ng-if="!productsLoading && orderProducts.length === 0"
+                     style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">
+                    No products configured. Contact admin.
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-shrink:0;">
+                <button type="button" class="panel-btn-primary" ng-click="closeOrdersModal()"
+                        style="flex:1;background:var(--text-secondary);">Cancel</button>
+                <button type="button" class="panel-btn-primary green" ng-click="doneOrders()" style="flex:2;">
+                    Done &amp; Download Receipt
+                    <span ng-if="ordersCount() > 0"> ({{ordersCount()}})</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PROMOTED PRODUCTS MODAL ===== -->
+    <div class="rc-panel-overlay" ng-show="showPromotedModal" ng-click="closePromotedModal()">
+        <div class="rc-panel product-panel" ng-click="$event.stopPropagation()">
+            <div class="rc-panel-title" style="flex-shrink:0;">Promoted Products</div>
+            <input type="text" class="panel-input" ng-model="promotedSearch" placeholder="Search products..."
+                   style="flex-shrink:0;" />
+            <div class="product-list">
+                <div ng-if="productsLoading" style="text-align:center;padding:20px;color:var(--text-secondary);font-size:14px;">Loading...</div>
+                <div class="product-row" ng-repeat="p in promotedProducts | filter:promotedSearch">
+                    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
+                        <input type="checkbox" ng-model="p.promoted"
+                               style="width:22px;height:22px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);" />
+                        <span style="font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
+                    </label>
+                </div>
+                <div ng-if="!productsLoading && promotedProducts.length === 0"
+                     style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px;">
+                    No products configured. Contact admin.
+                </div>
+            </div>
+            <button type="button" class="panel-btn-primary" ng-click="closePromotedModal()" style="margin-top:10px;flex-shrink:0;">
+                Done
+                <span ng-if="promotedCount() > 0"> — {{promotedCount()}} selected</span>
+            </button>
         </div>
     </div>
 
@@ -109,19 +372,22 @@
         <!-- Shop / Outlet Selection -->
         <div class="field-group">
             <label class="field-label">Shop <span style="color:var(--accent-red);">*</span></label>
-            <div class="root-code-badge" ng-click="openOutletPanel()" style="cursor:pointer;">
-                <span class="badge-inner">
-                    <span class="badge-dot" ng-class="{empty: !selectedOutletCode}"></span>
-                    <span ng-if="selectedOutletCode">{{selectedOutletCode}}</span>
-                    <span ng-if="!selectedOutletCode" style="color:var(--accent-red);">Tap to Select Shop</span>
-                </span>
+            <div class="shop-field-row">
+                <div class="root-code-badge" ng-click="openOutletPanel()" style="cursor:pointer;">
+                    <span class="badge-inner">
+                        <span class="badge-dot" ng-class="{empty: !selectedOutletCode}"></span>
+                        <span ng-if="selectedOutletCode">{{selectedOutletCode}}</span>
+                        <span ng-if="!selectedOutletCode" style="color:var(--accent-red);">Tap to Select Shop</span>
+                    </span>
+                </div>
+                <button type="button" class="btn-new-shop" ng-click="openNewShopPanel()">+ New</button>
             </div>
             <div ng-if="selectedOutlet" style="font-size:12px;color:var(--text-secondary);margin-top:6px;padding-left:2px;">
                 {{selectedOutlet.shop_name}} &middot; {{selectedOutlet.town}} &middot; {{selectedOutlet.owner_contact}}
             </div>
         </div>
 
-        <!-- Shop Name Board Picture — camera only -->
+        <!-- Shop Name Board Picture -->
         <div class="field-group">
             <label class="field-label">Shop Name Board Picture</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('board')">Open Camera &amp; Capture</button>
@@ -136,7 +402,7 @@
             <input type="text" class="field-input" ng-model="live_location" placeholder="Fetching GPS..." readonly>
         </div>
 
-        <!-- Rack Before Picture — camera only -->
+        <!-- Rack Before Picture -->
         <div class="field-group">
             <label class="field-label">Shop Product Rack Before Picture</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('rackBefore')">Open Camera &amp; Capture</button>
@@ -145,7 +411,7 @@
             <img ng-src="{{rackBeforePreview}}" />
         </div>
 
-        <!-- Rack After Picture — camera only -->
+        <!-- Rack After Picture -->
         <div class="field-group">
             <label class="field-label">Shop Product Rack After Picture</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('rackAfter')">Open Camera &amp; Capture</button>
@@ -154,29 +420,26 @@
             <img ng-src="{{rackAfterPreview}}" />
         </div>
 
-        <!-- Fonterra Product Availability Checklist -->
+        <!-- Fonterra Product Availability -->
         <div class="field-group">
-            <label class="field-label">Fonterra Product Availability</label>
-            <div ng-if="productsLoading" style="color:var(--text-secondary);font-size:13px;padding:8px 0;">
-                Loading products...
-            </div>
-            <div ng-if="!productsLoading && fonterraProducts.length === 0"
-                 style="color:var(--text-secondary);font-size:13px;padding:8px 0;">
-                No products configured. Contact your administrator.
-            </div>
-            <div ng-repeat="p in fonterraProducts"
-                 style="padding:10px 0;border-bottom:1px solid var(--border);">
-                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
-                    <input type="checkbox" ng-model="p.checked"
-                           style="width:20px;height:20px;cursor:pointer;flex-shrink:0;" />
-                    <span style="font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
-                </label>
-            </div>
+            <label class="field-label">Lactalis Product Availability</label>
+            <button type="button" class="btn-select-field" ng-click="openFonterraModal()">
+                <span>
+                    Select Products
+                    <span ng-if="fonterraSelectedCount() > 0" style="color:var(--accent-green);margin-left:4px;">
+                        ({{fonterraSelectedCount()}} selected)
+                    </span>
+                    <span ng-if="fonterraSelectedCount() === 0" style="color:var(--text-secondary);font-size:13px;font-weight:400;margin-left:4px;">
+                        — tap to choose
+                    </span>
+                </span>
+                <span class="sel-arrow">&#8250;</span>
+            </button>
         </div>
 
-        <!-- Fonterra Rack Image — camera only -->
+        <!-- Fonterra Rack Image -->
         <div class="field-group">
-            <label class="field-label">Upload Rack Image</label>
+            <label class="field-label">Upload Rack Image (Fonterra)</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('rackFonterra')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="rackFonterraPreview" class="img-preview">
@@ -190,7 +453,7 @@
                    placeholder="Enter competitive product details">
         </div>
 
-        <!-- Competitor Rack Image — camera only -->
+        <!-- Competitor Rack Image -->
         <div class="field-group">
             <label class="field-label">Capture Rack Image (Competitor)</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('competitorRack')">Open Camera &amp; Capture</button>
@@ -202,30 +465,43 @@
         <!-- New Orders -->
         <div class="field-group">
             <label class="field-label">New Orders</label>
-            <div ng-if="productsLoading" style="color:var(--text-secondary);font-size:13px;padding:8px 0;">Loading products...</div>
-            <div ng-repeat="p in orderProducts"
-                 style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
-                <span style="flex:1;font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
-                <input type="number" min="0" ng-model="p.qty" placeholder="Qty"
-                       style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;color:var(--text-primary);background:var(--bg-input);outline:none;text-align:center;" />
+            <div class="orders-field-row">
+                <button type="button" class="btn-select-field" ng-click="openOrdersModal()">
+                    <span>
+                        Add Orders
+                        <span ng-if="ordersCount() > 0" style="color:var(--accent);margin-left:4px;">
+                            ({{ordersCount()}} item(s))
+                        </span>
+                        <span ng-if="ordersCount() === 0" style="color:var(--text-secondary);font-size:13px;font-weight:400;margin-left:4px;">
+                            — tap to enter
+                        </span>
+                    </span>
+                    <span class="sel-arrow">&#8250;</span>
+                </button>
+                <button type="button" class="btn-receipt" ng-if="ordersCount() > 0" ng-click="generateReceipt()">
+                    &#8595; Receipt
+                </button>
             </div>
         </div>
 
         <!-- Promoted Products -->
         <div class="field-group">
             <label class="field-label">Promoted Products</label>
-            <div ng-if="productsLoading" style="color:var(--text-secondary);font-size:13px;padding:8px 0;">Loading products...</div>
-            <div ng-repeat="p in promotedProducts"
-                 style="padding:10px 0;border-bottom:1px solid var(--border);">
-                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
-                    <input type="checkbox" ng-model="p.promoted"
-                           style="width:20px;height:20px;cursor:pointer;flex-shrink:0;" />
-                    <span style="font-size:14px;color:var(--text-primary);">{{p.product_name}}</span>
-                </label>
-            </div>
+            <button type="button" class="btn-select-field" ng-click="openPromotedModal()">
+                <span>
+                    Select Promoted Products
+                    <span ng-if="promotedCount() > 0" style="color:var(--accent);margin-left:4px;">
+                        ({{promotedCount()}} selected)
+                    </span>
+                    <span ng-if="promotedCount() === 0" style="color:var(--text-secondary);font-size:13px;font-weight:400;margin-left:4px;">
+                        — tap to choose
+                    </span>
+                </span>
+                <span class="sel-arrow">&#8250;</span>
+            </button>
         </div>
 
-        <!-- Owner Signature — camera only -->
+        <!-- Owner Signature -->
         <div class="field-group">
             <label class="field-label">Shop Owner Signature Picture</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('signature')">Open Camera &amp; Capture</button>

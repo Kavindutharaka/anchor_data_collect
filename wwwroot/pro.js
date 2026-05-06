@@ -59,7 +59,7 @@ app.controller('ProCtrl', function ($scope, $http, $filter) {
     $scope.deletePromoter = function (item) {
         if (!confirm('Delete promoter "' + item.name + '"?\nThis cannot be undone.')) return;
         $http.post('./api/Mater/sp', JSON.stringify({
-            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_promoter_delete] " + item.SysID
+            "SysID": "USE [phvtechc_tb]; exec [dbo].[tb_promoter_delete] " + item.sysID
         })).then(function () { loadPromoters(); });
     };
 
