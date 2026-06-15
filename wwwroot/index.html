@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="sup/animate.css" />
 
     <script type="text/javascript" src="sup/angular.min.js"></script>
-    <script type="text/javascript" src="app.js?t=3089656c"></script>
+    <script type="text/javascript" src="app.js?t=30895456c"></script>
 
     <style>
         /* Panel input style shared */
@@ -65,6 +65,21 @@
             border-bottom: 1px solid var(--border);
         }
         .product-row:last-child { border-bottom: none; }
+
+        /* Outlet (Select Shop) panel: keep search pinned, scroll the shop list */
+        .outlet-panel {
+            display: flex;
+            flex-direction: column;
+            max-height: 88vh;
+        }
+        .outlet-panel > *:not(.rc-saved-list) { flex-shrink: 0; }
+        .outlet-panel .rc-saved-list {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            margin: 0 -4px 10px -4px;
+            padding: 0 4px;
+        }
 
         /* Shop field row */
         .shop-field-row {
@@ -237,7 +252,7 @@
 
     <!-- ===== OUTLET SELECTION PANEL ===== -->
     <div class="rc-panel-overlay" ng-show="showOutletPanel" ng-click="closeOutletPanelOutside()">
-        <div class="rc-panel" ng-click="$event.stopPropagation()">
+        <div class="rc-panel outlet-panel" ng-click="$event.stopPropagation()">
             <div class="rc-panel-title">Select Shop</div>
             <div class="rc-panel-sub">Select the outlet you are visiting today.</div>
             <input type="text" class="panel-input" ng-model="outletSearch" placeholder="Search shop name or code..." />
@@ -268,7 +283,7 @@
     <!-- ===== FONTERRA PRODUCTS MODAL ===== -->
     <div class="rc-panel-overlay" ng-show="showFonterraModal" ng-click="closeFonterraModal()">
         <div class="rc-panel product-panel" ng-click="$event.stopPropagation()">
-            <div class="rc-panel-title" style="flex-shrink:0;">Lactalis Product Availability</div>
+            <div class="rc-panel-title" style="flex-shrink:0;">Fonterra Product Availability</div>
             <input type="text" class="panel-input" ng-model="fonterraSearch" placeholder="Search products..."
                    style="flex-shrink:0;" />
             <div class="product-list">
@@ -422,7 +437,7 @@
 
         <!-- Fonterra Product Availability -->
         <div class="field-group">
-            <label class="field-label">Lactalis Product Availability</label>
+            <label class="field-label">Fonterra Product Availability</label>
             <button type="button" class="btn-select-field" ng-click="openFonterraModal()">
                 <span>
                     Select Products
@@ -439,7 +454,7 @@
 
         <!-- Fonterra Rack Image -->
         <div class="field-group">
-            <label class="field-label">Upload Rack Image (Fonterra)</label>
+            <label class="field-label">Upload Rack Image (Lactalis)</label>
             <button type="button" class="btn-camera" ng-click="openCameraFor('rackFonterra')">Open Camera &amp; Capture</button>
         </div>
         <div ng-show="rackFonterraPreview" class="img-preview">
