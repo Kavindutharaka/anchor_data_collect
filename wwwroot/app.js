@@ -154,6 +154,11 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
     $scope.showPromotedModal = false;
     $scope.promotedSearch    = '';
 
+    // Strip trailing weight/size from product name (e.g. "400g", "1kg", "500ml")
+    function stripWeight(name) {
+        return (name || '').replace(/\s+\d+(\.\d+)?\s*(g|kg|ml|l)\b\s*$/i, '').trim();
+    }
+
     function fetchProducts() {
         $scope.productsLoading = true;
         $http.post('./api/Mater/sp', JSON.stringify({
@@ -166,7 +171,7 @@ app.controller('HomeCtrl', function ($scope, $http, $filter, $timeout) {
                 return { SysID: p.SysID, product_name: p.product_name, qty: null };
             });
             $scope.promotedProducts = res.data.map(function (p) {
-                return { SysID: p.SysID, product_name: p.product_name, promoted: false };
+                return { SysID: p.SysID, product_name: p.product_name, display_name: stripWeight(p.product_name), promoted: false };
             });
             $scope.productsLoading = false;
         }, function () { $scope.productsLoading = false; });
